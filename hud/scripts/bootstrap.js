@@ -7,7 +7,7 @@ const https = require('https');
 const os = require('os');
 const path = require('path');
 
-const DEFAULT_SOURCE_BASE = 'https://raw.githubusercontent.com/icebear0828/agy-hud/main';
+const DEFAULT_SOURCE_BASE = 'https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud';
 
 const RUNTIME_FILES = [
   'package.json',

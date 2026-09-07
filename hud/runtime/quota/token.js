@@ -140,22 +140,42 @@ function parseTokenPayload(raw) {
   return null;
 }
 
-function writeWindowsTokenTemp(tokens, roots = getAntigravityRoots()) {
+function writeWindowsTokenTemp(tokens, roots = getAntigravityRoots(), conversationId = null) {
   if (!Array.isArray(tokens) || tokens.length === 0) return;
   try {
     const tmp = resolveTokenTempPath(roots);
+    let existingConvId = null;
+    try {
+      if (fs.existsSync(tmp)) {
+        const prev = JSON.parse(fs.readFileSync(tmp, 'utf8'));
+        if (prev && prev.conversationId) existingConvId = prev.conversationId;
+      }
+    } catch {}
+
     fs.mkdirSync(path.dirname(tmp), { recursive: true });
     // mode 0o600 — the file holds OAuth access tokens, so keep permissions
     // narrow even though this is only a short-lived mirror.
-    fs.writeFileSync(tmp, JSON.stringify({ tokens, writtenAt: Date.now() }), { mode: 0o600 });
+    const data = { tokens, writtenAt: Date.now() };
+    const finalConvId = conversationId || existingConvId;
+    if (finalConvId) data.conversationId = finalConvId;
+    fs.writeFileSync(tmp, JSON.stringify(data), { mode: 0o600 });
   } catch { /* best-effort cache */ }
 }
 
-function readWindowsTokenTemp(roots = getAntigravityRoots()) {
+function readWindowsTokenTemp(roots = getAntigravityRoots(), maxAgeMs = WINDOWS_TOKEN_TEMP_TTL_MS, now = Date.now(), conversationId = null) {
   try {
     const tmp = resolveTokenTempPath(roots);
     const raw = JSON.parse(fs.readFileSync(tmp, 'utf8'));
-    return tokenResultFromTokens(selectUsableTokens(raw.tokens, raw.writtenAt));
+    if (typeof raw.writtenAt === 'number' && Number.isFinite(maxAgeMs) && maxAgeMs > 0) {
+      if (now - raw.writtenAt > maxAgeMs) return null;
+    }
+    // New session → temp cache may hold a different account's token.
+    // Reject it so the caller falls back to the authoritative credential
+    // store (Keychain / Credential Manager / keyring).
+    if (conversationId && (!raw.conversationId || raw.conversationId !== conversationId)) {
+      return null;
+    }
+    return tokenResultFromTokens(selectUsableTokens(raw.tokens, raw.writtenAt, now));
   } catch {
     return null;
   }
@@ -214,7 +234,7 @@ function buildWindowsCredentialScript() {
   ].join('\n');
 }
 
-function readWindowsCredentialTokens(platform = process.platform, roots = getAntigravityRoots()) {
+function readWindowsCredentialTokens(platform = process.platform, roots = getAntigravityRoots(), conversationId = null) {
   if (platform !== 'win32') return null;
 
   try {
@@ -236,7 +256,7 @@ function readWindowsCredentialTokens(platform = process.platform, roots = getAnt
     const valid = selectUsableTokens(parsed.tokens, Date.now())
       .map(token => ({ ...token, sourceFormat: 'windows-credential' }));
     if (valid.length === 0) return null;
-    writeWindowsTokenTemp(valid, roots);
+    writeWindowsTokenTemp(valid, roots, conversationId);
     return { ...tokenResultFromTokens(valid), sourceFormat: 'windows-credential' };
   } catch {
     return null;
@@ -259,7 +279,7 @@ function readWindowsCredentialTokens(platform = process.platform, roots = getAnt
  * @param {string} [platform]
  * @returns {{ accessToken: string, expiry?: string, sourceFormat?: string, all: Array<{ accessToken: string, expiry?: string }> } | null}
  */
-function readLinuxKeyringTokens(platform = process.platform, roots = getAntigravityRoots()) {
+function readLinuxKeyringTokens(platform = process.platform, roots = getAntigravityRoots(), conversationId = null) {
   if (platform !== 'linux') return null;
 
   try {
@@ -296,7 +316,7 @@ function readLinuxKeyringTokens(platform = process.platform, roots = getAntigrav
       expiry: token.expiry,
       sourceFormat: 'linux-keyring',
     }];
-    writeWindowsTokenTemp(tokens, roots);
+    writeWindowsTokenTemp(tokens, roots, conversationId);
 
     return { ...token, sourceFormat: 'linux-keyring', all: tokens };
   } catch {
@@ -346,7 +366,7 @@ function probeLinuxKeyringAvailability(platform = process.platform) {
  * @param {string} [platform]
  * @returns {{ accessToken: string, expiry?: string, sourceFormat?: string, all: Array<{ accessToken: string, expiry?: string }> } | null}
  */
-function readMacKeychainTokens(platform = process.platform, roots = getAntigravityRoots()) {
+function readMacKeychainTokens(platform = process.platform, roots = getAntigravityRoots(), conversationId = null) {
   if (platform !== 'darwin') return null;
 
   try {
@@ -387,7 +407,7 @@ function readMacKeychainTokens(platform = process.platform, roots = getAntigravi
       expiry: token.expiry,
       sourceFormat: 'macos-keychain',
     }];
-    writeWindowsTokenTemp(tokens, roots);
+    writeWindowsTokenTemp(tokens, roots, conversationId);
 
     return { ...token, sourceFormat: 'macos-keychain', all: tokens };
   } catch {
@@ -406,25 +426,31 @@ function readToken(options = {}) {
     credentialReader = readWindowsCredentialTokens,
     keyringReader = readLinuxKeyringTokens,
     macKeychainReader = readMacKeychainTokens,
+    skipTemp = false,
+    conversationId = null,
   } = options;
 
   // macOS: agy stores its OAuth token in the macOS Keychain. Check the short-lived JSON cache first; fall back to security CLI.
   if (platform === 'darwin') {
-    const tempToken = readWindowsTokenTemp(roots);
-    if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'macos-keychain' };
+    if (!skipTemp) {
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'macos-keychain' };
+    }
 
-    const keychainToken = macKeychainReader(platform, roots);
+    const keychainToken = macKeychainReader(platform, roots, conversationId);
     if (keychainToken) return keychainToken;
   }
 
   // Windows: agy stores its OAuth token in Credential Manager. Keep a short
   // JSON mirror so normal statusline renders do not spawn PowerShell every time.
   if (platform === 'win32') {
-    const tempToken = readWindowsTokenTemp(roots);
-    if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'windows-credential' };
+    if (!skipTemp) {
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'windows-credential' };
+    }
 
     if (!skipWindowsCredential) {
-      const credentialToken = credentialReader(platform, roots);
+      const credentialToken = credentialReader(platform, roots, conversationId);
       if (credentialToken) return credentialToken;
     }
   }
@@ -432,10 +458,12 @@ function readToken(options = {}) {
   // Linux: agy stores its OAuth token in the system keyring (D-Bus Secret
   // Service). Check the short-lived JSON cache first; fall back to python3.
   if (platform === 'linux') {
-    const tempToken = readWindowsTokenTemp(roots);
-    if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'linux-keyring' };
+    if (!skipTemp) {
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'linux-keyring' };
+    }
 
-    const keyringToken = normalizeKeyringTokenResult(keyringReader(platform, roots));
+    const keyringToken = normalizeKeyringTokenResult(keyringReader(platform, roots, conversationId));
     if (keyringToken) return keyringToken;
   }
 

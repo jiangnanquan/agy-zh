@@ -13,11 +13,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/icebear0828/agy-hud.git"
+    "url": "git+https://github.com/jiangnanquan/agy-zh.git"
   },
-  "homepage": "https://github.com/icebear0828/agy-hud#readme",
+  "homepage": "https://github.com/jiangnanquan/agy-zh#readme",
   "bugs": {
-    "url": "https://github.com/icebear0828/agy-hud/issues"
+    "url": "https://github.com/jiangnanquan/agy-zh/issues"
   },
   "scripts": {
     "test": "node --test tests/unit/*.test.mjs",

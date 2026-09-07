@@ -10,6 +10,8 @@ const {
   isTokenExpired,
   parseTokenPayload,
   readToken,
+  writeWindowsTokenTemp,
+  readWindowsTokenTemp,
   clearTokenTemp,
 } = quotaModule;
 
@@ -340,6 +342,195 @@ describe('quota / token', () => {
         }, () => {
           clearTokenTemp([cliDir]);
           assert.equal(fs.existsSync(tokenFile), false);
+        });
+      } finally {
+        fs.rmSync(tmp, { recursive: true, force: true });
+      }
+    });
+
+    test('can skip temporary token cache with skipTemp: true across platforms', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'agy-hud-token-skiptemp-'));
+      try {
+        const home = path.join(tmp, 'home');
+        const cliDir = path.join(home, '.gemini', 'antigravity-cli');
+        fs.mkdirSync(cliDir, { recursive: true });
+        const tokenFile = path.join(cliDir, 'agy-hud-token.json');
+        fs.writeFileSync(tokenFile, JSON.stringify({
+          tokens: [{ accessToken: 'cached-stale-token', sourceFormat: 'cached' }],
+          writtenAt: Date.now(),
+        }));
+
+        withEnv({
+          HOME: home,
+          USERPROFILE: home,
+          XDG_DATA_HOME: undefined,
+          APPDATA: undefined,
+          LOCALAPPDATA: undefined,
+        }, () => {
+          // macOS with skipTemp: false reads cached temp
+          const darwinCached = readToken({
+            platform: 'darwin',
+            roots: [cliDir],
+            macKeychainReader: () => ({ accessToken: 'live-darwin-keychain' }),
+          });
+          assert.equal(darwinCached.accessToken, 'cached-stale-token');
+
+          // macOS with skipTemp: true bypasses cached temp and reads live credential
+          const darwinBypassed = readToken({
+            platform: 'darwin',
+            roots: [cliDir],
+            skipTemp: true,
+            macKeychainReader: () => ({ accessToken: 'live-darwin-keychain' }),
+          });
+          assert.equal(darwinBypassed.accessToken, 'live-darwin-keychain');
+
+          // win32 with skipTemp: true bypasses cached temp
+          const winBypassed = readToken({
+            platform: 'win32',
+            roots: [cliDir],
+            skipTemp: true,
+            credentialReader: () => ({ accessToken: 'live-win-cred' }),
+          });
+          assert.equal(winBypassed.accessToken, 'live-win-cred');
+
+          // linux with skipTemp: true bypasses cached temp
+          const linuxBypassed = readToken({
+            platform: 'linux',
+            roots: [cliDir],
+            skipTemp: true,
+            keyringReader: () => ({ accessToken: 'live-linux-keyring' }),
+          });
+          assert.equal(linuxBypassed.accessToken, 'live-linux-keyring');
+        });
+      } finally {
+        fs.rmSync(tmp, { recursive: true, force: true });
+      }
+    });
+
+    test('temporary token cache expires after TTL and falls back to live reader', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'agy-hud-token-ttl-'));
+      try {
+        const home = path.join(tmp, 'home');
+        const cliDir = path.join(home, '.gemini', 'antigravity-cli');
+        fs.mkdirSync(cliDir, { recursive: true });
+        const tokenFile = path.join(cliDir, 'agy-hud-token.json');
+        // writtenAt is 10 minutes ago, well past 5 minutes TTL
+        fs.writeFileSync(tokenFile, JSON.stringify({
+          tokens: [{ accessToken: 'expired-temp-token', expiry: new Date(Date.now() + 3600000).toISOString() }],
+          writtenAt: Date.now() - 10 * 60 * 1000,
+        }));
+
+        withEnv({
+          HOME: home,
+          USERPROFILE: home,
+          XDG_DATA_HOME: undefined,
+          APPDATA: undefined,
+          LOCALAPPDATA: undefined,
+        }, () => {
+          let keychainReadCount = 0;
+          const token = readToken({
+            platform: 'darwin',
+            roots: [cliDir],
+            macKeychainReader: () => {
+              keychainReadCount += 1;
+              return { accessToken: 'refreshed-keychain-token' };
+            },
+          });
+          assert.equal(token.accessToken, 'refreshed-keychain-token');
+          assert.equal(keychainReadCount, 1);
+        });
+      } finally {
+        fs.rmSync(tmp, { recursive: true, force: true });
+      }
+    });
+
+    test('temporary token cache with matching conversationId is used without calling live reader', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'agy-hud-token-sess-'));
+      try {
+        const home = path.join(tmp, 'home');
+        const cliDir = path.join(home, '.gemini', 'antigravity-cli');
+        fs.mkdirSync(cliDir, { recursive: true });
+        const tokenFile = path.join(cliDir, 'agy-hud-token.json');
+        fs.writeFileSync(tokenFile, JSON.stringify({
+          tokens: [{ accessToken: 'session-cached-token', expiry: new Date(Date.now() + 3600000).toISOString() }],
+          writtenAt: Date.now(),
+          conversationId: 'conv-111',
+        }));
+
+        withEnv({
+          HOME: home,
+          USERPROFILE: home,
+          XDG_DATA_HOME: undefined,
+          APPDATA: undefined,
+          LOCALAPPDATA: undefined,
+        }, () => {
+          let keychainReadCount = 0;
+          const token = readToken({
+            platform: 'darwin',
+            roots: [cliDir],
+            conversationId: 'conv-111',
+            macKeychainReader: () => {
+              keychainReadCount += 1;
+              return { accessToken: 'live-keychain-token' };
+            },
+          });
+          assert.equal(token.accessToken, 'session-cached-token');
+          assert.equal(keychainReadCount, 0);
+        });
+      } finally {
+        fs.rmSync(tmp, { recursive: true, force: true });
+      }
+    });
+
+    test('temporary token cache with different conversationId is invalidated and falls back to live reader', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'agy-hud-token-sess-diff-'));
+      try {
+        const home = path.join(tmp, 'home');
+        const cliDir = path.join(home, '.gemini', 'antigravity-cli');
+        fs.mkdirSync(cliDir, { recursive: true });
+        const tokenFile = path.join(cliDir, 'agy-hud-token.json');
+        fs.writeFileSync(tokenFile, JSON.stringify({
+          tokens: [{ accessToken: 'old-account-token', expiry: new Date(Date.now() + 3600000).toISOString() }],
+          writtenAt: Date.now(),
+          conversationId: 'old-conv',
+        }));
+
+        withEnv({
+          HOME: home,
+          USERPROFILE: home,
+          XDG_DATA_HOME: undefined,
+          APPDATA: undefined,
+          LOCALAPPDATA: undefined,
+        }, () => {
+          let keychainReadCount = 0;
+          let receivedConvId = null;
+          const token = readToken({
+            platform: 'darwin',
+            roots: [cliDir],
+            conversationId: 'new-conv',
+            macKeychainReader: (plat, r, convId) => {
+              keychainReadCount += 1;
+              receivedConvId = convId;
+              return { accessToken: 'new-account-token', sourceFormat: 'macos-keychain' };
+            },
+          });
+          assert.equal(token.accessToken, 'new-account-token');
+          assert.equal(keychainReadCount, 1);
+          assert.equal(receivedConvId, 'new-conv');
+
+          // writeWindowsTokenTemp with conversationId writes it correctly
+          writeWindowsTokenTemp([{ accessToken: 'new-account-token' }], [cliDir], 'new-conv');
+          const updated = JSON.parse(fs.readFileSync(tokenFile, 'utf8'));
+          assert.equal(updated.conversationId, 'new-conv');
+          assert.equal(updated.tokens[0].accessToken, 'new-account-token');
+
+          // readWindowsTokenTemp with matching new-conv succeeds
+          const readMatch = readWindowsTokenTemp([cliDir], undefined, undefined, 'new-conv');
+          assert.equal(readMatch.accessToken, 'new-account-token');
+
+          // readWindowsTokenTemp with third-conv is rejected
+          const readMismatch = readWindowsTokenTemp([cliDir], undefined, undefined, 'third-conv');
+          assert.equal(readMismatch, null);
         });
       } finally {
         fs.rmSync(tmp, { recursive: true, force: true });

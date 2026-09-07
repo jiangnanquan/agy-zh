@@ -13,7 +13,7 @@ const { resolveAntigravityPath } = require('../paths.js');
 
 async function handleSelfUpdate() {
   console.log('Checking for latest installer...');
-  const bootstrapUrl = 'https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.js';
+  const bootstrapUrl = 'https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.js';
   const tempPath = path.join(os.tmpdir(), `agy-hud-bootstrap-${Date.now()}.js`);
 
   try {
@@ -130,7 +130,7 @@ async function main() {
       const [state, config, quotaData, tierName] = await Promise.all([
         getSessionState(transcriptPath),
         loadConfig(),
-        getQuota({ fast: true }).catch(() => []),
+        getQuota({ fast: true, conversationId: agyData?.conversation_id }).catch(() => []),
         getCachedTier(),
       ]);
 

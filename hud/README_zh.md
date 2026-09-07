@@ -1,7 +1,7 @@
 # agy-hud
 
-[![E2E](https://github.com/icebear0828/agy-hud/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/icebear0828/agy-hud/actions/workflows/e2e.yml)
-[![Release](https://img.shields.io/github/v/release/icebear0828/agy-hud)](https://github.com/icebear0828/agy-hud/releases/latest)
+[![E2E](https://github.com/jiangnanquan/agy-zh/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/jiangnanquan/agy-zh/actions/workflows/e2e.yml)
+[![Release](https://img.shields.io/github/v/release/jiangnanquan/agy-zh)](https://github.com/jiangnanquan/agy-zh/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
 > **Antigravity CLI (`agy`)** 的实时 statusline HUD 插件。每个 step 结束自动刷新，展示会话信息、Token 用量和**真实账号 Quota**（与 `/usage` 命令数据一致）。
@@ -55,17 +55,17 @@ Anthropic: Son███ Opus█░░ │ Google: Flash███ Pro███ �
 
 **macOS / Linux**：
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.sh)
 ```
 
 **Windows PowerShell**：
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.ps1 | iex
 ```
 
 **Windows CMD**：
 ```cmd
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.ps1 | iex"
 ```
 
 该安装脚本会：
@@ -103,22 +103,22 @@ irm "$env:AGY_HUD_REPO_RAW/scripts/install.ps1" | iex
 
 **macOS / Linux**：
 ```bash
-agy plugin install https://github.com/icebear0828/agy-hud.git
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.sh)
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.sh)
 ```
 
 **Windows PowerShell**：
 ```powershell
-agy plugin install https://github.com/icebear0828/agy-hud.git
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
 $t = Join-Path $env:TEMP "agy-hud-bootstrap.js"
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.js -OutFile $t -UseBasicParsing
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.js -OutFile $t -UseBasicParsing
 node $t; Remove-Item $t
 ```
 
 **Windows CMD**：
 ```cmd
-agy plugin install https://github.com/icebear0828/agy-hud.git
-powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.js -OutFile %TEMP%\agy-hud-bootstrap.js -UseBasicParsing"
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
+powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.js -OutFile %TEMP%\agy-hud-bootstrap.js -UseBasicParsing"
 node %TEMP%\agy-hud-bootstrap.js
 del %TEMP%\agy-hud-bootstrap.js
 ```
@@ -166,17 +166,17 @@ ls -t ~/.gemini/antigravity-cli/log/cli-*.log | head -1 | xargs tail -50 | grep 
 
 **macOS / Linux**：
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.sh)
 ```
 
 **Windows PowerShell**：
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.ps1 | iex
 ```
 
 **Windows CMD**：
 ```cmd
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.ps1 | iex"
 ```
 
 如果您已克隆了本仓库，也可以在根目录下直接执行：`bash uninstall.sh` 或 `.\uninstall.ps1`。
@@ -286,7 +286,7 @@ agy-hud/
 **Windows UTF-8 终端助手**：如果您的 Windows 控制台不在 UTF-8 代码页下且您希望获得漂亮的 Unicode 框线/进度条显示，请运行：
 
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/configure-utf8.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/configure-utf8.ps1 | iex
 ```
 
 该脚本会在您的 PowerShell 配置文件中追加 UTF-8 代码页的初始化脚本，并设定 Git 全局文件名的 UTF-8 编码支持。该命令是幂等的，运行完毕后需要重启 PowerShell。

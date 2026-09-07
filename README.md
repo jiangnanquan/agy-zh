@@ -299,4 +299,4 @@ agy-zh/
 ## 致谢与开源协议
 
 - 本项目基于 [MIT](LICENSE) 协议开源。
-- 状态栏增强与 HUD 模块基于 [agy-hud](https://github.com/icebear0828/agy-hud)（MIT License）提供生态兼容与配置预设。
+- 状态栏增强与 HUD 模块已内置于本项目（`hud/`），提供生态兼容与开箱即用的配置预设。

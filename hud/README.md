@@ -1,7 +1,7 @@
 # agy-hud
 
-[![E2E](https://github.com/icebear0828/agy-hud/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/icebear0828/agy-hud/actions/workflows/e2e.yml)
-[![Release](https://img.shields.io/github/v/release/icebear0828/agy-hud)](https://github.com/icebear0828/agy-hud/releases/latest)
+[![E2E](https://github.com/jiangnanquan/agy-zh/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/jiangnanquan/agy-zh/actions/workflows/e2e.yml)
+[![Release](https://img.shields.io/github/v/release/jiangnanquan/agy-zh)](https://github.com/jiangnanquan/agy-zh/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
 > Real-time statusline HUD plugin for **Antigravity CLI (`agy`)**. Refreshes after every step with session info, detailed token breakdown, workspace context, and **real account quota** (matches `/usage` numbers).
@@ -55,17 +55,17 @@ One command, in a normal shell (NOT inside an active `agy` session):
 
 **macOS / Linux**:
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.sh)
 ```
 
 **Windows PowerShell**:
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.ps1 | iex
 ```
 
 **Windows CMD**:
 ```cmd
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/install.ps1 | iex"
 ```
 
 This installer:
@@ -103,22 +103,22 @@ If you prefer to run the steps yourself:
 
 **macOS / Linux**:
 ```bash
-agy plugin install https://github.com/icebear0828/agy-hud.git
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.sh)
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.sh)
 ```
 
 **Windows PowerShell**:
 ```powershell
-agy plugin install https://github.com/icebear0828/agy-hud.git
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
 $t = Join-Path $env:TEMP "agy-hud-bootstrap.js"
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.js -OutFile $t -UseBasicParsing
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.js -OutFile $t -UseBasicParsing
 node $t; Remove-Item $t
 ```
 
 **Windows CMD**:
 ```cmd
-agy plugin install https://github.com/icebear0828/agy-hud.git
-powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/bootstrap.js -OutFile %TEMP%\agy-hud-bootstrap.js -UseBasicParsing"
+agy plugin install https://github.com/jiangnanquan/agy-zh.git
+powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/bootstrap.js -OutFile %TEMP%\agy-hud-bootstrap.js -UseBasicParsing"
 node %TEMP%\agy-hud-bootstrap.js
 del %TEMP%\agy-hud-bootstrap.js
 ```
@@ -166,17 +166,17 @@ The most common failure mode is `statusline_runner.go: failure N/30` — that me
 
 **macOS / Linux**:
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.sh)
 ```
 
 **Windows PowerShell**:
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.ps1 | iex
 ```
 
 **Windows CMD**:
 ```cmd
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/uninstall.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/uninstall.ps1 | iex"
 ```
 
 Or, if you have the repo cloned: `bash uninstall.sh` / `.\uninstall.ps1`.
@@ -286,7 +286,7 @@ agy-hud/
 **Windows UTF-8 helper**: If your terminal is on a non-UTF-8 codepage and you want Unicode bars/borders by default, run:
 
 ```powershell
-irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/configure-utf8.ps1 | iex
+irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/configure-utf8.ps1 | iex
 ```
 
 This appends a guarded UTF-8 encoding block to your PowerShell profile and sets Git's global UTF-8 filename/log options. It is idempotent and safe to re-run. Restart PowerShell after it finishes.
@@ -331,7 +331,7 @@ CI runs in **no-auth mode**: it asserts the standalone HUD command renders the s
 > If you force Unicode rendering (e.g. by setting `display.unicode: true` in your configuration) while the active codepage is not UTF-8, you may see garbled text or `?` replacement characters.
 >
 > **How to enable beautiful Unicode progress bars and borders on Windows:**
-> 1. **PowerShell helper (Recommended)**: Run `irm https://raw.githubusercontent.com/icebear0828/agy-hud/main/scripts/configure-utf8.ps1 | iex`, then restart PowerShell.
+> 1. **PowerShell helper (Recommended)**: Run `irm https://raw.githubusercontent.com/jiangnanquan/agy-zh/master/hud/scripts/configure-utf8.ps1 | iex`, then restart PowerShell.
 > 2. **Per Session**: Run `chcp 65001` once in your Command Prompt / PowerShell window before opening `agy`.
 > 3. **System-wide UTF-8 (Permanent)**:
 >    - Go to Windows Settings -> **Time & language** -> **Language & region** -> **Administrative language settings**.

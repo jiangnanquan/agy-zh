@@ -78,6 +78,7 @@ async function getQuota(options = {}) {
     credentialReader = readWindowsCredentialTokens,
     roots = getAntigravityRoots(),
     windowsCredentialRefreshDebounceMs = WINDOWS_CREDENTIAL_REFRESH_DEBOUNCE_MS,
+    conversationId = null,
   } = options;
   const shouldRefreshWindowsCredential = fast && platform === 'win32';
   const refreshWindowsCredential = () => {
@@ -89,6 +90,8 @@ async function getQuota(options = {}) {
     roots,
     credentialReader,
     skipWindowsCredential: fast && platform === 'win32',
+    skipTemp: !fast,
+    conversationId,
   });
   if (!tok) {
     // Token file exists but failed to parse → transient (OAuth mid-refresh).
@@ -150,7 +153,7 @@ async function getQuota(options = {}) {
 if (process.argv.includes('--refresh')) {
   (async () => {
     try {
-      const tok = readToken();
+      const tok = readToken({ skipTemp: true });
       if (tok) {
         const [fresh, tier, accountEmail] = await Promise.all([
           fetchQuotaFromCloud(tok.accessToken),
@@ -183,6 +186,8 @@ module.exports = {
   getCachedAccountEmail: cacheMod.getCachedAccountEmail,
   // token module
   readToken,
+  writeWindowsTokenTemp: tokenMod.writeWindowsTokenTemp,
+  readWindowsTokenTemp: tokenMod.readWindowsTokenTemp,
   clearTokenTemp: tokenMod.clearTokenTemp,
   readWindowsCredentialTokens,
   readLinuxKeyringTokens: tokenMod.readLinuxKeyringTokens,

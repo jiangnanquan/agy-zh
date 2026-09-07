@@ -318,7 +318,8 @@ describe('quota / models', () => {
         ],
       };
 
-      const groups = parseQuotaSummaryGroups(summaryResponse);
+      const testNow = Date.parse('2026-09-04T12:00:00Z');
+      const groups = parseQuotaSummaryGroups(summaryResponse, testNow);
       assert.ok(groups.gemini, 'should parse gemini group');
       assert.equal(groups.gemini.windows.weekly.remainingFraction, 0.92);
       assert.equal(groups.gemini.windows.fiveHour.remainingFraction, 0.54);
@@ -374,7 +375,7 @@ describe('quota / models', () => {
         },
       };
 
-      const applied = applyQuotaSummaryToModels(normalized, groupWindows);
+      const applied = applyQuotaSummaryToModels(normalized, groupWindows, Date.parse('2026-09-04T12:00:00Z'));
       const gemini = applied.find(m => m.id === 'gemini-3.8-flash-high');
       assert.ok(gemini);
       assert.equal(gemini.windows.weekly.remainingFraction, 0.9);
