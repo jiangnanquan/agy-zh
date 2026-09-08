@@ -46,12 +46,16 @@ const { createUnavailableQuotaResult } = modelsMod;
 const WINDOWS_CREDENTIAL_REFRESH_DEBOUNCE_MS = 30 * 1000;
 let lastWindowsCredentialRefreshAt = 0;
 
-function triggerBackgroundRefresh() {
+function triggerBackgroundRefresh(accountEmail = null) {
   try {
-    const subprocess = spawn(process.execPath, [
+    const args = [
       path.join(__dirname, 'quota.js'),
       '--refresh',
-    ], {
+    ];
+    if (accountEmail) {
+      args.push(`--email=${accountEmail}`);
+    }
+    const subprocess = spawn(process.execPath, args, {
       detached: true,
       stdio: 'ignore',
     });
@@ -59,10 +63,10 @@ function triggerBackgroundRefresh() {
   } catch { /* ignore spawning issues */ }
 }
 
-function triggerWindowsCredentialRefresh(backgroundRefresh, now, debounceMs) {
+function triggerWindowsCredentialRefresh(backgroundRefresh, now, debounceMs, accountEmail = null) {
   if (now - lastWindowsCredentialRefreshAt < debounceMs) return;
   lastWindowsCredentialRefreshAt = now;
-  backgroundRefresh();
+  backgroundRefresh(accountEmail);
 }
 
 /**
@@ -79,11 +83,12 @@ async function getQuota(options = {}) {
     roots = getAntigravityRoots(),
     windowsCredentialRefreshDebounceMs = WINDOWS_CREDENTIAL_REFRESH_DEBOUNCE_MS,
     conversationId = null,
+    accountEmail = null,
   } = options;
   const shouldRefreshWindowsCredential = fast && platform === 'win32';
   const refreshWindowsCredential = () => {
     if (!shouldRefreshWindowsCredential) return;
-    triggerWindowsCredentialRefresh(backgroundRefresh, Date.now(), windowsCredentialRefreshDebounceMs);
+    triggerWindowsCredentialRefresh(backgroundRefresh, Date.now(), windowsCredentialRefreshDebounceMs, accountEmail);
   };
   const tok = tokenReader({
     platform,
@@ -92,13 +97,14 @@ async function getQuota(options = {}) {
     skipWindowsCredential: fast && platform === 'win32',
     skipTemp: !fast,
     conversationId,
+    accountEmail,
   });
   if (!tok) {
     // Token file exists but failed to parse → transient (OAuth mid-refresh).
     // Return fresh cache rather than flashing "not logged in".
     // Token file absent → genuine logout, skip fallback.
     if (anyTokenFileExists(roots)) {
-      const fallback = readCacheFallback();
+      const fallback = readCacheFallback(accountEmail);
       if (fallback && isCachePayloadFresh(fallback)) {
         return fallback.data;
       }
@@ -109,8 +115,8 @@ async function getQuota(options = {}) {
 
   // For multi-account (Windows Credential Manager), use the primary token for
   // cache keying but fall back to alternates if the primary has no cache.
-  const payload = readCachePayload(tok) ||
-    (tok.all && tok.all.slice(1).reduce((acc, t) => acc || readCachePayload(t), null));
+  const payload = readCachePayload(tok, accountEmail) ||
+    (tok.all && tok.all.slice(1).reduce((acc, t) => acc || readCachePayload(t, accountEmail), null));
   const isFresh = payload && isCachePayloadFresh(payload);
   const tokenExpired = isTokenExpired(tok);
   const needsRefresh = !tokenExpired && (!isFresh || didAccessTokenRotate(payload, tok));
@@ -124,7 +130,7 @@ async function getQuota(options = {}) {
     // Debounce stale/no-cache refreshes, but refresh immediately when a fresh
     // cache belongs to the same source and only the access token has rotated.
     if (didAccessTokenRotate(payload, tok) || Date.now() - lastRefreshed > 30 * 1000) {
-      backgroundRefresh();
+      backgroundRefresh(accountEmail);
     }
   }
 
@@ -139,7 +145,7 @@ async function getQuota(options = {}) {
 
   // Fallback to any readable cache payload on disk to prevent "Quota loading" flicker
   // while we perform a background refresh for the current token.
-  const fallback = readCacheFallback();
+  const fallback = readCacheFallback(accountEmail);
   if (fallback) {
     return fallback.data;
   }
@@ -153,17 +159,20 @@ async function getQuota(options = {}) {
 if (process.argv.includes('--refresh')) {
   (async () => {
     try {
-      const tok = readToken({ skipTemp: true });
+      const emailArg = process.argv.find(a => a.startsWith('--email='));
+      const targetEmail = emailArg ? emailArg.slice('--email='.length).trim() : null;
+      const tok = readToken({ skipTemp: true, accountEmail: targetEmail });
       if (tok) {
         const [fresh, tier, accountEmail] = await Promise.all([
           fetchQuotaFromCloud(tok.accessToken),
           fetchTierFromCloud(tok.accessToken),
           fetchAccountEmail(tok.accessToken),
         ]);
+        const resolvedEmail = targetEmail || accountEmail;
         if (fresh && fresh.unavailableReason === 'auth_failed') {
           tokenMod.clearTokenTemp();
-        } else if (fresh.length > 0 || accountEmail) {
-          writeCache(fresh, tok, tier, accountEmail);
+        } else if (fresh.length > 0 || resolvedEmail) {
+          writeCache(fresh, tok, tier, resolvedEmail);
         }
       }
     } catch {}

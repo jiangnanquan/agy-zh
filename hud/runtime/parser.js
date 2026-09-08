@@ -2,20 +2,51 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execFileSync } = require('child_process');
-const { resolveSafeExecutable, resolveAntigravityPath } = require('./paths.js');
+const { resolveSafeExecutable, resolveAntigravityPath, getAntigravityRoots } = require('./paths.js');
 
 function getGeminiHome() {
   const home = process.env.HOME || process.env.USERPROFILE || os.homedir();
   return path.join(home, '.gemini');
 }
 
-function getActiveAccountFromRegistry() {
+/**
+ * High-precision active account resolver using Antigravity CLI process logs.
+ * Each active conversation is logged under ~/.gemini/antigravity-cli/log/cli-*.log
+ * where `Created conversation <id>` and `applyAuthResult: email=<email>` are recorded.
+ * @param {string} conversationId
+ * @returns {string|null}
+ */
+function getAccountEmailForConversation(conversationId) {
+  if (!conversationId || typeof conversationId !== 'string') return null;
   try {
-    const registryPath = path.join(getGeminiHome(), 'google_accounts.json');
-    if (!fs.existsSync(registryPath)) return null;
-    const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    if (registry && typeof registry.active === 'string' && registry.active.includes('@')) {
-      return registry.active;
+    const roots = getAntigravityRoots ? getAntigravityRoots() : [path.join(getGeminiHome(), 'antigravity-cli')];
+    for (const root of roots) {
+      const logDir = path.join(root, 'log');
+      if (!fs.existsSync(logDir)) continue;
+      const entries = fs.readdirSync(logDir)
+        .filter(f => f.startsWith('cli-') && f.endsWith('.log'))
+        .map(f => {
+          const p = path.join(logDir, f);
+          try {
+            return { path: p, mtime: fs.statSync(p).mtimeMs };
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.mtime - a.mtime);
+
+      for (const { path: logFile } of entries.slice(0, 15)) {
+        try {
+          const content = fs.readFileSync(logFile, 'utf8');
+          if (content.includes(conversationId)) {
+            const matches = [...content.matchAll(/applyAuthResult:\s*email=([^,]+)/g)];
+            if (matches.length > 0) {
+              return matches[matches.length - 1][1].trim();
+            }
+          }
+        } catch {}
+      }
     }
   } catch {}
   return null;
@@ -71,24 +102,39 @@ function getActiveAccountFromRegistry() {
 
 /**
  * Resolves the email of agy's active account for display.
+ * Supports passing conversationId or agyData to ensure session-level isolation
+ * when multiple Google accounts are running concurrently on the same machine.
  *
- * agy resolves the signed-in account from the live OAuth access token at
- * runtime and never persists it, so no local file reliably names the active
- * account after a switch. The authoritative value is the userinfo email the
- * quota refresh caches against the current token; we read that first and fall
- * back to the account registry / oauth_creds id_token only when it is absent.
+ * @param {Object|string} [options]
  * @returns {string|null}
  */
-function getActiveAccountEmail() {
+function getActiveAccountEmail(options = {}) {
+  const opts = (typeof options === 'string' ? { conversationId: options } : options) || {};
+  const { conversationId, agyData } = opts;
+
+  if (agyData?.email && typeof agyData.email === 'string') {
+    return agyData.email.trim();
+  }
+  if (agyData?.account && typeof agyData.account === 'string') {
+    return agyData.account.trim();
+  }
+
+  const resolvedConvId = conversationId || agyData?.conversation_id;
+  if (resolvedConvId) {
+    const logEmail = getAccountEmailForConversation(resolvedConvId);
+    if (logEmail) return logEmail;
+  }
+
   try {
     const { readToken } = require('./quota/token.js');
     const { getCachedAccountEmail } = require('./quota/cache.js');
-    const tok = readToken();
+    const tok = readToken({ conversationId: resolvedConvId });
     if (tok) {
-      const email = getCachedAccountEmail(tok);
+      const email = getCachedAccountEmail(tok, resolvedConvId);
       if (email) return email;
     }
   } catch {}
+
   return getActiveAccountFromRegistry() || getOauthCredsEmail();
 }
 
@@ -174,7 +220,7 @@ function deepFind(obj, key, maxDepth = 6) {
   return undefined;
 }
 
-async function getSessionState(transcriptPath) {
+async function getSessionState(transcriptPath, agyData = null) {
   let steps = 0;
   let branch = 'main';
   let gitPath = null;
@@ -357,7 +403,12 @@ async function getSessionState(transcriptPath) {
     }
   } catch {}
 
-  const username = getActiveAccountEmail() || getFallbackUsername();
+  let convId = agyData?.conversation_id;
+  if (!convId && transcriptPath) {
+    const match = transcriptPath.match(/[\\/]brain[\\/]([a-f0-9-]+)[\\/]/i);
+    if (match) convId = match[1];
+  }
+  const username = getActiveAccountEmail({ conversationId: convId, agyData }) || getFallbackUsername();
   const currentDir = path.basename(cwd);
   const state = { steps, branch, memoryFile, rulesCount, mcpCount, hooksCount, currentDir, username, maxHistoricalCache };
   if (usage) state.usage = usage;
@@ -380,5 +431,7 @@ function parseAgyInput(jsonStr) {
 
 module.exports = {
   getSessionState,
-  parseAgyInput
+  parseAgyInput,
+  getActiveAccountEmail,
+  getAccountEmailForConversation,
 };

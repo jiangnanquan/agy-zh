@@ -7,11 +7,11 @@ const { resolveAntigravityPath } = require('../paths.js');
 const { mergeQuotaWindows } = require('./models.js');
 
 const CACHE_PATH = resolveAntigravityPath('agy-hud-quota-cache.json');
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 
 function isCachePayloadFresh(raw) {
   return raw &&
-    raw.version === CACHE_VERSION &&
+    (raw.version === CACHE_VERSION || raw.version === 3) &&
     raw.expiresAt &&
     Date.now() < raw.expiresAt &&
     Array.isArray(raw.data);
@@ -39,6 +39,14 @@ function getTokenCacheIdentity(tokenOrAccessToken) {
     return `sourcePath:${path.resolve(token.sourcePath)}`;
   }
 
+  if (token.refreshToken) {
+    return `refreshToken:${token.refreshToken}`;
+  }
+
+  if (token.accountEmail) {
+    return `accountEmail:${token.accountEmail}`;
+  }
+
   if (token.sourceFormat) {
     return `sourceFormat:${token.sourceFormat}`;
   }
@@ -61,16 +69,42 @@ function getTokenCacheKeyHash(tokenOrAccessToken) {
   return identity ? hashCacheKey(identity) : null;
 }
 
-function doesCachePayloadMatchToken(raw, tokenOrAccessToken) {
+function doesCachePayloadMatchToken(raw, tokenOrAccessToken, expectedEmail = null) {
   if (!raw || !Array.isArray(raw.data)) return false;
 
-  const cacheKeyHash = getTokenCacheKeyHash(tokenOrAccessToken);
-  if (raw.cacheKeyHash && cacheKeyHash && raw.cacheKeyHash === cacheKeyHash) {
+  const token = normalizeTokenCacheInput(tokenOrAccessToken);
+  if (!token) return false;
+
+  const effectiveEmail = expectedEmail || token.accountEmail;
+  if (effectiveEmail && raw.accountEmail && raw.accountEmail !== effectiveEmail) {
+    return false;
+  }
+
+  const tokenHash = getTokenHash(token);
+  if (raw.tokenHash && tokenHash && raw.tokenHash === tokenHash) {
     return true;
   }
 
-  const tokenHash = getTokenHash(tokenOrAccessToken);
-  return Boolean(raw.tokenHash && tokenHash && raw.tokenHash === tokenHash);
+  if (token.refreshToken && raw.refreshTokenHash) {
+    if (hashCacheKey(token.refreshToken) === raw.refreshTokenHash) {
+      return true;
+    }
+  }
+
+  if (token.accountEmail && raw.accountEmail && token.accountEmail === raw.accountEmail) {
+    return true;
+  }
+
+  if (token.sourcePath) {
+    const cacheKeyHash = getTokenCacheKeyHash(token);
+    if (raw.cacheKeyHash && cacheKeyHash && raw.cacheKeyHash === cacheKeyHash) {
+      if (!effectiveEmail || !raw.accountEmail || raw.accountEmail === effectiveEmail) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function didAccessTokenRotate(raw, tokenOrAccessToken) {
@@ -81,14 +115,14 @@ function didAccessTokenRotate(raw, tokenOrAccessToken) {
 /**
  * Read cached quota if still valid.
  * @param {string|Object} tokenOrAccessToken
+ * @param {string|null} [accountEmail]
  * @returns {ModelQuota[] | null}
  */
-function readCache(tokenOrAccessToken) {
+function readCache(tokenOrAccessToken, accountEmail = null) {
   try {
-    const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
-    if (!isCachePayloadFresh(raw)) return null;
-    if (!doesCachePayloadMatchToken(raw, tokenOrAccessToken)) return null;
-    return raw.data;
+    const payload = readCachePayload(tokenOrAccessToken, accountEmail);
+    if (!payload || !isCachePayloadFresh(payload)) return null;
+    return payload.data;
   } catch {
     return null;
   }
@@ -96,8 +130,7 @@ function readCache(tokenOrAccessToken) {
 
 /**
  * Read the previous cache payload (any token) for merging the other window's
- * last observation. Tier and per-window state are account-level, so we
- * intentionally skip the token-match check used by readCache.
+ * last observation.
  */
 function readCacheRaw() {
   try {
@@ -110,34 +143,31 @@ function readCacheRaw() {
 }
 
 /**
- * Write quota cache. Expires at the earliest resetTime among all buckets.
- * Uses atomic write (tmp + rename) to prevent concurrent readers from seeing
- * truncated/empty content — the main fix for statusline quota flicker.
- * Merges with the previous payload so the window not present in this response
- * (e.g. 5-hour when the API returns weekly) keeps its last observation, but
- * only when the cache belongs to the same credential identity (token rotation
- * is fine, account switch is not).
+ * Write quota cache. Supports multi-account dictionary under payload.accounts[accountEmail]
+ * to completely eliminate cross-account cache collisions on shared machines.
  */
 function writeCache(data, tokenOrAccessToken, tier = null, accountEmail = null) {
   const now = Date.now();
   const previousRaw = readCacheRaw();
-  let sameIdentity = previousRaw && doesCachePayloadMatchToken(previousRaw, tokenOrAccessToken);
-  // The OAuth token file path is shared across accounts on one machine, so an
-  // access-token rotation (same account) and an account switch look identical
-  // at the token level (same cacheKeyHash, different tokenHash). The account
-  // email disambiguates them: when the previous and the fresh email are both
-  // known and differ, this is a switch — treat it as a new identity so the
-  // previous account's windows / tier / email cannot leak into this one.
-  if (sameIdentity && accountEmail && previousRaw.accountEmail &&
-      accountEmail !== previousRaw.accountEmail) {
-    sameIdentity = false;
+  const token = normalizeTokenCacheInput(tokenOrAccessToken);
+  const targetEmail = accountEmail || token?.accountEmail;
+
+  const accounts = (previousRaw && typeof previousRaw.accounts === 'object') ? { ...previousRaw.accounts } : {};
+  const previousAccountEntry = (targetEmail && accounts[targetEmail]) ? accounts[targetEmail] : null;
+
+  let sameIdentity = false;
+  if (previousAccountEntry) {
+    sameIdentity = doesCachePayloadMatchToken(previousAccountEntry, tokenOrAccessToken, targetEmail);
+  } else if (previousRaw) {
+    sameIdentity = doesCachePayloadMatchToken(previousRaw, tokenOrAccessToken, targetEmail);
+    if (sameIdentity && targetEmail && previousRaw.accountEmail && targetEmail !== previousRaw.accountEmail) {
+      sameIdentity = false;
+    }
   }
-  const previousData = sameIdentity ? previousRaw.data : [];
+
+  const previousData = sameIdentity ? (previousAccountEntry?.data || previousRaw?.data || []) : [];
   const merged = mergeQuotaWindows(data, previousData, now);
 
-  // Find earliest resetTime across top-level AND each merged window — a
-  // preserved 5-hour observation can reset well before the weekly top-level,
-  // and we must refresh by then or risk serving a stale fiveHour.
   let earliest = Infinity;
   const considerResetTime = (value) => {
     if (!value) return;
@@ -154,25 +184,43 @@ function writeCache(data, tokenOrAccessToken, tier = null, accountEmail = null) 
   if (isFinite(earliest) && earliest < expiresAt) {
     expiresAt = earliest;
   }
+
   const cacheKeyHash = getTokenCacheKeyHash(tokenOrAccessToken);
   const tokenHash = getTokenHash(tokenOrAccessToken);
-  // Preserve the previously cached tier when the caller passes null and the
-  // cache belongs to the same identity — fetchTierFromCloud transient failures
-  // must not wipe 'Google AI Pro' down to 'Free'.
-  const resolvedTier = tier || (sameIdentity ? (previousRaw.tier || null) : null);
-  // Same as tier: account-level, preserved across token rotation but dropped on
-  // an account switch (different identity) so a stale email never outlives it.
-  const resolvedEmail = accountEmail || (sameIdentity ? (previousRaw.accountEmail || null) : null);
+  const refreshTokenHash = token?.refreshToken
+    ? hashCacheKey(token.refreshToken)
+    : (previousAccountEntry?.refreshTokenHash || (sameIdentity ? previousRaw?.refreshTokenHash : null) || null);
+
+  const resolvedTier = tier || (sameIdentity ? (previousAccountEntry?.tier || previousRaw?.tier || null) : null);
+  const resolvedEmail = targetEmail || (sameIdentity ? (previousAccountEntry?.accountEmail || previousRaw?.accountEmail || null) : null);
+
+  if (resolvedEmail) {
+    accounts[resolvedEmail] = {
+      version: CACHE_VERSION,
+      expiresAt,
+      lastRefreshed: now,
+      cacheKeyHash,
+      tokenHash,
+      refreshTokenHash,
+      tier: resolvedTier,
+      accountEmail: resolvedEmail,
+      data: merged,
+    };
+  }
+
   const payload = {
     version: CACHE_VERSION,
     expiresAt,
     lastRefreshed: now,
     cacheKeyHash,
     tokenHash,
+    refreshTokenHash,
     tier: resolvedTier,
     accountEmail: resolvedEmail,
+    accounts,
     data: merged,
   };
+
   try {
     const tmpPath = `${CACHE_PATH}.tmp.${process.pid}`;
     fs.writeFileSync(tmpPath, JSON.stringify(payload), { mode: 0o600 });
@@ -183,49 +231,83 @@ function writeCache(data, tokenOrAccessToken, tier = null, accountEmail = null) 
 }
 
 /**
- * Read the cached tier name without requiring a token match.
- * Tier is account-level, not token-level, so we skip token matching.
+ * Read the cached tier name, prioritizing the requested account email.
+ * @param {string|null} [accountEmail]
  */
-function getCachedTier() {
+function getCachedTier(accountEmail = null) {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
-    return raw.tier || null;
+    if (!raw) return null;
+    if (accountEmail && raw.accounts && raw.accounts[accountEmail]?.tier) {
+      return raw.accounts[accountEmail].tier;
+    }
+    if (!accountEmail || raw.accountEmail === accountEmail) {
+      return raw.tier || null;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
 /**
- * Read the cached active-account email, but ONLY when the cache belongs to the
- * current token. Unlike tier, a wrong email is worse than none: after an account
- * switch the token no longer matches, so we return null (caller falls back) and
- * let the background refresh repopulate it for the new account.
+ * Read the cached active-account email.
  * @param {string|Object} tokenOrAccessToken
  * @returns {string|null}
  */
 function getCachedAccountEmail(tokenOrAccessToken) {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
-    if (!raw || !raw.accountEmail) return null;
-    if (!doesCachePayloadMatchToken(raw, tokenOrAccessToken)) return null;
-    return raw.accountEmail;
+    if (!raw) return null;
+    const token = normalizeTokenCacheInput(tokenOrAccessToken);
+    if (!token) return null;
+
+    const tokenHash = getTokenHash(token);
+    if (raw.tokenHash && tokenHash && raw.tokenHash === tokenHash && raw.accountEmail) {
+      return raw.accountEmail;
+    }
+
+    if (raw.accounts && typeof raw.accounts === 'object') {
+      for (const [email, acc] of Object.entries(raw.accounts)) {
+        if (acc && acc.tokenHash && tokenHash && acc.tokenHash === tokenHash) {
+          return email;
+        }
+        if (token.refreshToken && acc.refreshTokenHash && hashCacheKey(token.refreshToken) === acc.refreshTokenHash) {
+          return email;
+        }
+      }
+    }
+
+    if (doesCachePayloadMatchToken(raw, tokenOrAccessToken)) {
+      return raw.accountEmail || null;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-function readCachePayload(tokenOrAccessToken) {
+function readCachePayload(tokenOrAccessToken, accountEmail = null) {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
-    if (!doesCachePayloadMatchToken(raw, tokenOrAccessToken)) return null;
+    if (!raw) return null;
+
+    const token = normalizeTokenCacheInput(tokenOrAccessToken);
+    const targetEmail = accountEmail || token?.accountEmail;
+    if (targetEmail && raw.accounts && raw.accounts[targetEmail]) {
+      const acc = raw.accounts[targetEmail];
+      if (isCachePayloadFresh(acc) && doesCachePayloadMatchToken(acc, tokenOrAccessToken, targetEmail)) {
+        return acc;
+      }
+    }
+
+    if (!doesCachePayloadMatchToken(raw, tokenOrAccessToken, targetEmail)) return null;
     return raw;
   } catch {
     return null;
   }
 }
 
-// Read lastRefreshed without requiring token match — used to debounce
-// background refresh storms when the caller's token doesn't match the cache.
 function readCacheLastRefreshed() {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
@@ -235,12 +317,18 @@ function readCacheLastRefreshed() {
   }
 }
 
-// Return any readable cache payload regardless of token — fallback for
-// transient token-read failures to avoid flashing "not logged in".
-function readCacheFallback() {
+function readCacheFallback(accountEmail = null) {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
-    if (!raw || !Array.isArray(raw.data) || raw.version !== CACHE_VERSION) return null;
+    if (!raw) return null;
+    if (accountEmail && raw.accounts && raw.accounts[accountEmail]) {
+      const acc = raw.accounts[accountEmail];
+      if (Array.isArray(acc.data) && (acc.version === CACHE_VERSION || acc.version === 3)) {
+        return acc;
+      }
+    }
+    if (!Array.isArray(raw.data) || (raw.version !== CACHE_VERSION && raw.version !== 3)) return null;
+    if (accountEmail && raw.accountEmail && raw.accountEmail !== accountEmail) return null;
     return raw;
   } catch {
     return null;

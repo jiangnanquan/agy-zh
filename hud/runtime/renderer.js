@@ -95,7 +95,7 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     : { bar: '#', empty: '-', vbar: '|', hbar: '-', ellipsis: '...' };
 
   // Icons: Nerd Font > emoji > plain ASCII
-  let branchIcon, planIcon, stepIcon, taskIcon, tokenIcon, ctxIcon, modelIcon;
+  let branchIcon, planIcon, stepIcon, taskIcon, tokenIcon, ctxIcon, modelIcon, userIcon;
   if (useNerd) {
     branchIcon = ' ';
     planIcon = '󰌢 ';
@@ -104,6 +104,7 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     tokenIcon = '󰚩 ';
     ctxIcon = '󱔐 ';
     modelIcon = '󰚗 ';
+    userIcon = '󰀄 ';
   } else if (unicode) {
     branchIcon = '⎇ ';
     planIcon = '❖ ';
@@ -112,6 +113,7 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     tokenIcon = '⚿ ';
     ctxIcon = '⛁ ';
     modelIcon = '🤖 ';
+    userIcon = '👤 ';
   } else {
     branchIcon = '[B] ';
     planIcon = '[P] ';
@@ -120,6 +122,7 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     tokenIcon = '[Tk] ';
     ctxIcon = '[C] ';
     modelIcon = '[M] ';
+    userIcon = '';
   }
 
   // Override via config.icons if present — strip control/escape sequences first
@@ -132,6 +135,7 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     if (config.icons.token !== undefined) tokenIcon = sanitizeIcon(config.icons.token);
     if (config.icons.ctx !== undefined) ctxIcon = sanitizeIcon(config.icons.ctx);
     if (config.icons.model !== undefined) modelIcon = sanitizeIcon(config.icons.model);
+    if (config.icons.user !== undefined) userIcon = sanitizeIcon(config.icons.user);
   }
 
   const branchName = `${blue}${branchIcon}${sanitizeTerminalText(state.branch || 'unknown', 80)}${reset}`;
@@ -192,10 +196,6 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
   const currentDir = sanitizeTerminalText(state.currentDir || '', 80);
   if (showCurrentDir && currentDir) {
     line1Parts.unshift(`${blue}${currentDir}${reset}`);
-  }
-  const username = sanitizeTerminalText(display.username || state.username || '', 80);
-  if (showUsername && username) {
-    line1Parts.unshift(`${cyan}${username}${reset}`);
   }
   if (updateInfo && updateInfo.updateAvailable) {
     const updateIcon = unicode ? '⟳' : '[UP]';
@@ -267,6 +267,11 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
   const tokenPrefix = tokenIcon === '[Tk] ' ? 'Tokens' : `${tokenIcon}Tokens`;
   const tokensStr = `${cyan}${tokenPrefix} ${tokenParts}${reset}`;
   if (showTokenBar) line1Parts.push(tokensStr);
+  const username = sanitizeTerminalText(display.username || state.username || '', 80);
+  if (showUsername && username) {
+    const userPrefix = userIcon ? userIcon : '';
+    line1Parts.push(`${cyan}${userPrefix}${username}${reset}`);
+  }
   const line1 = line1Parts.join(divider);
 
   const ctxBar = createProgressBar(ctxPercent, cyan, 10, true);

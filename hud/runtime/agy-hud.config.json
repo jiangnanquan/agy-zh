@@ -12,7 +12,7 @@
     "showCurrentDir": true,
     "breadcrumbCount": 3,
     "useNerdFonts": true,
-    "showUsername": false,
+    "showUsername": true,
 
     "quotaStyle": "table",
     "models": [

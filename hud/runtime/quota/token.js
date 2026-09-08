@@ -66,12 +66,16 @@ function isTokenExpired(token, now = Date.now()) {
 
 function tokenResultFromTokens(tokens) {
   if (!tokens || tokens.length === 0) return null;
-  return {
+  const result = {
     accessToken: tokens[0].accessToken,
     expiry: tokens[0].expiry,
     sourceFormat: tokens[0].sourceFormat,
     all: tokens,
   };
+  if (tokens[0].refreshToken) {
+    result.refreshToken = tokens[0].refreshToken;
+  }
+  return result;
 }
 
 function normalizeKeyringTokenResult(token) {
@@ -122,50 +126,103 @@ function parseTokenPayload(raw) {
   if (!raw || typeof raw !== 'object') return null;
 
   if (raw.token && typeof raw.token === 'object' && raw.token.access_token) {
-    return {
+    const payload = {
       accessToken: raw.token.access_token,
       expiry: normalizeExpiryDate(raw.token.expiry),
       sourceFormat: 'antigravity-cli',
     };
+    if (raw.token.refresh_token) {
+      payload.refreshToken = raw.token.refresh_token;
+    }
+    return payload;
   }
 
   if (raw.access_token) {
-    return {
+    const payload = {
       accessToken: raw.access_token,
       expiry: normalizeExpiryDate(raw.expiry || raw.expiry_date),
       sourceFormat: 'oauth-creds',
     };
+    if (raw.refresh_token) {
+      payload.refreshToken = raw.refresh_token;
+    }
+    return payload;
   }
 
   return null;
 }
 
-function writeWindowsTokenTemp(tokens, roots = getAntigravityRoots(), conversationId = null) {
+function writeWindowsTokenTemp(tokens, roots = getAntigravityRoots(), conversationId = null, accountEmail = null) {
   if (!Array.isArray(tokens) || tokens.length === 0) return;
   try {
     const tmp = resolveTokenTempPath(roots);
+    let existingSessions = {};
     let existingConvId = null;
+    let existingEmail = null;
     try {
       if (fs.existsSync(tmp)) {
         const prev = JSON.parse(fs.readFileSync(tmp, 'utf8'));
+        if (prev && typeof prev.sessions === 'object') {
+          existingSessions = prev.sessions;
+        }
         if (prev && prev.conversationId) existingConvId = prev.conversationId;
+        if (prev && prev.accountEmail) existingEmail = prev.accountEmail;
       }
     } catch {}
 
     fs.mkdirSync(path.dirname(tmp), { recursive: true });
-    // mode 0o600 — the file holds OAuth access tokens, so keep permissions
-    // narrow even though this is only a short-lived mirror.
-    const data = { tokens, writtenAt: Date.now() };
+    const now = Date.now();
     const finalConvId = conversationId || existingConvId;
+    const finalEmail = accountEmail || existingEmail;
+
+    if (finalConvId) {
+      existingSessions[finalConvId] = {
+        tokens,
+        writtenAt: now,
+        accountEmail: finalEmail || null,
+      };
+      // Prune sessions older than 1 hour to prevent indefinite disk growth
+      for (const [k, v] of Object.entries(existingSessions)) {
+        if (!v || !v.writtenAt || now - v.writtenAt > 60 * 60 * 1000) {
+          delete existingSessions[k];
+        }
+      }
+    }
+
+    const data = {
+      tokens,
+      writtenAt: now,
+      sessions: existingSessions,
+    };
     if (finalConvId) data.conversationId = finalConvId;
+    if (finalEmail) data.accountEmail = finalEmail;
+
     fs.writeFileSync(tmp, JSON.stringify(data), { mode: 0o600 });
   } catch { /* best-effort cache */ }
 }
 
-function readWindowsTokenTemp(roots = getAntigravityRoots(), maxAgeMs = WINDOWS_TOKEN_TEMP_TTL_MS, now = Date.now(), conversationId = null) {
+function readWindowsTokenTemp(roots = getAntigravityRoots(), maxAgeMs = WINDOWS_TOKEN_TEMP_TTL_MS, now = Date.now(), conversationId = null, accountEmail = null) {
   try {
     const tmp = resolveTokenTempPath(roots);
     const raw = JSON.parse(fs.readFileSync(tmp, 'utf8'));
+
+    // Check specific session first if conversationId is provided
+    if (conversationId && raw.sessions && raw.sessions[conversationId]) {
+      const sess = raw.sessions[conversationId];
+      if (typeof sess.writtenAt === 'number' && Number.isFinite(maxAgeMs) && maxAgeMs > 0) {
+        if (now - sess.writtenAt <= maxAgeMs) {
+          if (!accountEmail || sess.accountEmail === accountEmail) {
+            const usable = selectUsableTokens(sess.tokens, sess.writtenAt, now);
+            if (usable.length > 0) {
+              const res = tokenResultFromTokens(usable);
+              if (sess.accountEmail) res.accountEmail = sess.accountEmail;
+              return res;
+            }
+          }
+        }
+      }
+    }
+
     if (typeof raw.writtenAt === 'number' && Number.isFinite(maxAgeMs) && maxAgeMs > 0) {
       if (now - raw.writtenAt > maxAgeMs) return null;
     }
@@ -175,7 +232,12 @@ function readWindowsTokenTemp(roots = getAntigravityRoots(), maxAgeMs = WINDOWS_
     if (conversationId && (!raw.conversationId || raw.conversationId !== conversationId)) {
       return null;
     }
-    return tokenResultFromTokens(selectUsableTokens(raw.tokens, raw.writtenAt, now));
+    if (accountEmail && raw.accountEmail && raw.accountEmail !== accountEmail) {
+      return null;
+    }
+    const res = tokenResultFromTokens(selectUsableTokens(raw.tokens, raw.writtenAt, now));
+    if (res && raw.accountEmail) res.accountEmail = raw.accountEmail;
+    return res;
   } catch {
     return null;
   }
@@ -366,7 +428,7 @@ function probeLinuxKeyringAvailability(platform = process.platform) {
  * @param {string} [platform]
  * @returns {{ accessToken: string, expiry?: string, sourceFormat?: string, all: Array<{ accessToken: string, expiry?: string }> } | null}
  */
-function readMacKeychainTokens(platform = process.platform, roots = getAntigravityRoots(), conversationId = null) {
+function readMacKeychainTokens(platform = process.platform, roots = getAntigravityRoots(), conversationId = null, accountEmail = null) {
   if (platform !== 'darwin') return null;
 
   try {
@@ -405,9 +467,10 @@ function readMacKeychainTokens(platform = process.platform, roots = getAntigravi
     const tokens = [{
       accessToken: token.accessToken,
       expiry: token.expiry,
+      refreshToken: token.refreshToken,
       sourceFormat: 'macos-keychain',
     }];
-    writeWindowsTokenTemp(tokens, roots, conversationId);
+    writeWindowsTokenTemp(tokens, roots, conversationId, accountEmail);
 
     return { ...token, sourceFormat: 'macos-keychain', all: tokens };
   } catch {
@@ -428,16 +491,17 @@ function readToken(options = {}) {
     macKeychainReader = readMacKeychainTokens,
     skipTemp = false,
     conversationId = null,
+    accountEmail = null,
   } = options;
 
   // macOS: agy stores its OAuth token in the macOS Keychain. Check the short-lived JSON cache first; fall back to security CLI.
   if (platform === 'darwin') {
     if (!skipTemp) {
-      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId, accountEmail);
       if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'macos-keychain' };
     }
 
-    const keychainToken = macKeychainReader(platform, roots, conversationId);
+    const keychainToken = macKeychainReader(platform, roots, conversationId, accountEmail);
     if (keychainToken) return keychainToken;
   }
 
@@ -445,7 +509,7 @@ function readToken(options = {}) {
   // JSON mirror so normal statusline renders do not spawn PowerShell every time.
   if (platform === 'win32') {
     if (!skipTemp) {
-      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId, accountEmail);
       if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'windows-credential' };
     }
 
@@ -459,7 +523,7 @@ function readToken(options = {}) {
   // Service). Check the short-lived JSON cache first; fall back to python3.
   if (platform === 'linux') {
     if (!skipTemp) {
-      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId);
+      const tempToken = readWindowsTokenTemp(roots, undefined, undefined, conversationId, accountEmail);
       if (tempToken) return { ...tempToken, sourceFormat: tempToken.sourceFormat || 'linux-keyring' };
     }
 

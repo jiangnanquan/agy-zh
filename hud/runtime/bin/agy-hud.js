@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 const https = require('https');
 const { spawn } = require('child_process');
-const { getSessionState, parseAgyInput } = require('../parser.js');
+const { getSessionState, parseAgyInput, getActiveAccountEmail } = require('../parser.js');
 const { renderHUD } = require('../renderer.js');
 const { loadConfig } = require('../config.js');
 const { getQuota, getCachedTier } = require('../quota.js');
@@ -118,6 +118,13 @@ async function main() {
         'transcript.jsonl'
       ));
 
+    let convId = agyData?.conversation_id;
+    if (!convId && transcriptPath) {
+      const match = transcriptPath.match(/[\\/]brain[\\/]([a-f0-9-]+)[\\/]/i);
+      if (match) convId = match[1];
+    }
+    const accountEmail = getActiveAccountEmail({ conversationId: convId, agyData });
+
     try {
       const updateStatusPath = resolveAntigravityPath('agy-hud-update-status.json');
       let updateInfo = null;
@@ -128,10 +135,10 @@ async function main() {
       } catch {}
 
       const [state, config, quotaData, tierName] = await Promise.all([
-        getSessionState(transcriptPath),
+        getSessionState(transcriptPath, agyData),
         loadConfig(),
-        getQuota({ fast: true, conversationId: agyData?.conversation_id }).catch(() => []),
-        getCachedTier(),
+        getQuota({ fast: true, conversationId: convId, accountEmail }).catch(() => []),
+        getCachedTier(accountEmail),
       ]);
 
       const hudOutput = renderHUD(state, agyData, config, quotaData, tierName, updateInfo);

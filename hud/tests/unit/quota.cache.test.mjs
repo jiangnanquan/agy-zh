@@ -363,4 +363,38 @@ describe('quota / cache', () => {
       }
     });
   });
+
+  describe('multi-account isolation', () => {
+    test('isolates quota and tier data between multiple accounts', () => {
+      const previousCache = fs.existsSync(CACHE_PATH) ? fs.readFileSync(CACHE_PATH, 'utf8') : null;
+      try {
+        fs.rmSync(CACHE_PATH, { force: true });
+
+        const accountA = 'userA@gmail.com';
+        const accountB = 'userB@gmail.com';
+        const dataA = [{ id: 'gemini-flash', displayName: 'Gemini Flash', remainingFraction: 0.95, resetTime: null }];
+        const dataB = [{ id: 'gemini-flash', displayName: 'Gemini Flash', remainingFraction: 0.15, resetTime: null }];
+
+        writeCache(dataA, { accessToken: 'token-A', sourceFormat: 'macos-keychain' }, 'Google AI Pro', accountA);
+        writeCache(dataB, { accessToken: 'token-B', sourceFormat: 'macos-keychain' }, 'Free', accountB);
+
+        // Retrieve Account A
+        const cachedA = readCache({ accessToken: 'token-A', sourceFormat: 'macos-keychain' }, accountA);
+        assert.equal(cachedA?.[0]?.remainingFraction, 0.95);
+        assert.equal(getCachedTier(accountA), 'Google AI Pro');
+
+        // Retrieve Account B
+        const cachedB = readCache({ accessToken: 'token-B', sourceFormat: 'macos-keychain' }, accountB);
+        assert.equal(cachedB?.[0]?.remainingFraction, 0.15);
+        assert.equal(getCachedTier(accountB), 'Free');
+
+        // Account A should NEVER match Account B's cache even if sourceFormat is identical
+        const crossMatch = readCache({ accessToken: 'token-B', sourceFormat: 'macos-keychain' }, accountA);
+        assert.equal(crossMatch, null);
+      } finally {
+        if (previousCache === null) fs.rmSync(CACHE_PATH, { force: true });
+        else fs.writeFileSync(CACHE_PATH, previousCache);
+      }
+    });
+  });
 });

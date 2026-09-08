@@ -353,6 +353,37 @@ describe('renderer / username', () => {
     assert.doesNotMatch(output2, /shetterelland@gmail\.com/);
   });
 
+  test('renders username at the very end of line 1', () => {
+    const state = {
+      steps: 1,
+      branch: 'main',
+      username: 'user@example.com',
+    };
+    const agyData = {
+      context_window: { total_input_tokens: 100, total_output_tokens: 50, used_percentage: 10 },
+      model: { display_name: 'Gemini 3 Flash' },
+      plan_tier: 'Pro',
+    };
+
+    const output = renderHUD(state, agyData, {
+      display: {
+        showUsername: true,
+        showTokenBar: true,
+        showGitBranch: true,
+        unicode: false,
+      }
+    });
+
+    const lines = output.split('\n');
+    const line1 = lines[0];
+    assert.match(line1, /user@example\.com/);
+    const tokenIndex = line1.indexOf('Tokens');
+    const userIndex = line1.indexOf('user@example.com');
+    assert.ok(tokenIndex !== -1, 'Tokens should be present in line 1');
+    assert.ok(userIndex !== -1, 'Username should be present in line 1');
+    assert.ok(userIndex > tokenIndex, 'Username should be placed after tokens at the end of line 1');
+  });
+
   test('respects custom config username over state username', () => {
     const state = {
       steps: 1,
