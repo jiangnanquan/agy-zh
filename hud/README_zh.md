@@ -21,13 +21,13 @@ agy-hud 支持两种额度（Quota）显示模式：**Table 模式**（默认）
 
 ```
 ⎇ main │ Gemini 3.5 Flash(L) │ Google AI Pro
-⚿ 83.7k ↑4.8k ↓13.9k ⟳65.1k │ ⛁ 75.4k/1M [█░░░░░░░░░] 8% │ ⚡0 ✓0
+⚿ 83.7k ↑4.8k ↓13.9k ⟳65.1k │ ⛁ 75.4k/1M [=---------] 8% │ ⚡0 ✓0
 1 GEMINI.md │ 2 hooks
   ─────────────────────────────────────────────────────────────────────────────────
-  Gemini 3.5 Flash(M) [█████░]  80% ~3h22m │ Gemini 3.5 Flash(H) [█████░]  80% ~3h22m
-  Gemini 3.5 Flash(L) [█████░]  80% ~3h22m │ Gemini 3.1 Pro(L)   [█████░]  80% ~3h22m
-  Gemini 3.1 Pro(H)   [█████░]  80% ~3h22m │ Sonnet 4.6(Th)      [██░░░░]  40% ~6d4h
-  Opus 4.6(Th)        [██░░░░]  40% ~6d4h  │ GPT-OSS 120B        [██░░░░]  40% ~6d4h
+  Gemini 3.5 Flash(M) [=====-]  80% ~3h22m │ Gemini 3.5 Flash(H) [=====-]  80% ~3h22m
+  Gemini 3.5 Flash(L) [=====-]  80% ~3h22m │ Gemini 3.1 Pro(L)   [=====-]  80% ~3h22m
+  Gemini 3.1 Pro(H)   [=====-]  80% ~3h22m │ Sonnet 4.6(Th)      [==----]  40% ~6d4h
+  Opus 4.6(Th)        [==----]  40% ~6d4h  │ GPT-OSS 120B        [==----]  40% ~6d4h
   ─────────────────────────────────────────────────────────────────────────────────
 ```
 
@@ -36,9 +36,9 @@ agy-hud 支持两种额度（Quota）显示模式：**Table 模式**（默认）
 
 ```
 ⎇ main │ Claude Sonnet 4.6 │ Pro
-⚿ 138.4M ↑6k ↓202k ⟳138.2M │ ⛁ 138.2M/1M [████░░░░░░] 40% │ ⚡42 ✓3 │ Quota: 100% ~5h
+⚿ 138.4M ↑6k ↓202k ⟳138.2M │ ⛁ 138.2M/1M [====------] 40% │ ⚡42 ✓3 │ Quota: 100% ~5h
 1 GEMINI.md │ 4 rules │ 1 MCPs │ 5 hooks
-Anthropic: Son███ Opus█░░ │ Google: Flash███ Pro███ │ OpenAI: GPT█░░
+Anthropic: Son=== Opus=-- │ Google: Flash=== Pro=== │ OpenAI: GPT=--
 ```
 
 ### 布局结构说明

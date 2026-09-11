@@ -91,7 +91,7 @@ describe('renderer / quota lines', () => {
       const modelLine = output.split('\n').find(l => l.includes('Gemini 3.5 Flash(H)'));
       assert.ok(modelLine, 'model row exists');
       // 20% top-level (weekly is binding), not 60% fiveHour.
-      assert.match(modelLine, /\[[█░]+\]\s+20%/);
+      assert.match(modelLine, /\[[=-]+\]\s+20%/);
       // No 5h / Wk labels on the row — single-line layout.
       assert.doesNotMatch(modelLine, /5h\s/);
       assert.doesNotMatch(modelLine, /Wk\s/);

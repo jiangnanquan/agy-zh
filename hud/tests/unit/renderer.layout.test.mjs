@@ -173,7 +173,7 @@ describe('renderer / theme & icons', () => {
     assert.doesNotMatch(output, /░/);
     // Ascii substitutes should appear
     assert.match(output, /\|/);
-    assert.match(output, /#/);
+    assert.match(output, /=/);
     // Plain-text icons
     assert.match(output, /\[B\]/);
     assert.match(output, /Tokens/);
@@ -211,7 +211,7 @@ describe('renderer / theme & icons', () => {
       }
     };
     const output = renderHUD(state, agyData, config);
-    assert.match(output, /\x1b\[34m\[█+/);
+    assert.match(output, /\x1b\[34m\[=+/);
   });
 
   test('supports custom warning and critical thresholds', () => {
@@ -229,7 +229,7 @@ describe('renderer / theme & icons', () => {
       }
     };
     const output = renderHUD(state, agyData, config);
-    assert.match(output, /\x1b\[33m\[█+/);
+    assert.match(output, /\x1b\[33m\[=+/);
   });
 });
 

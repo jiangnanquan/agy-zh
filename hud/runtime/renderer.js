@@ -89,10 +89,10 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     : DEFAULT_COLUMN_WIDTH;
   const nameWidth = Math.max(10, columnWidth - QUOTA_CHROME_WIDTH);
 
-  // Box-drawing glyphs with ASCII fallback
+  // Progress bar string glyphs and box-drawing characters
   const glyph = unicode
-    ? { bar: '█', empty: '░', vbar: '│', hbar: '─', ellipsis: '…' }
-    : { bar: '#', empty: '-', vbar: '|', hbar: '-', ellipsis: '...' };
+    ? { bar: '=', empty: '-', vbar: '│', hbar: '─', ellipsis: '…' }
+    : { bar: '=', empty: '-', vbar: '|', hbar: '-', ellipsis: '...' };
 
   // Icons: Nerd Font > emoji > plain ASCII
   let branchIcon, planIcon, stepIcon, taskIcon, tokenIcon, ctxIcon, modelIcon, userIcon;
@@ -175,7 +175,13 @@ function renderHUD(state, agyData, config, quotaData, tierName, updateInfo) {
     if (isCyberpunk) {
       return `${gray}[${reset}${finalColor}${glyph.bar.repeat(completed)}${trackDark}${glyph.empty.repeat(remaining)}${gray}]${reset}`;
     }
-    return `${finalColor}[${glyph.bar.repeat(completed)}${glyph.empty.repeat(remaining)}]${reset}`;
+    if (remaining === 0) {
+      return `${finalColor}[${glyph.bar.repeat(completed)}]${reset}`;
+    }
+    if (completed === 0) {
+      return `${finalColor}[${gray}${glyph.empty.repeat(remaining)}${finalColor}]${reset}`;
+    }
+    return `${finalColor}[${glyph.bar.repeat(completed)}${gray}${glyph.empty.repeat(remaining)}${finalColor}]${reset}`;
   };
 
   const truncateAndPad = (str, width) => {
