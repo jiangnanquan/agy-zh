@@ -1,9 +1,9 @@
 ---
-name: q汉化agy
+name: q-zh-agy
 description: Google Antigravity CLI (agy) 界面汉化（简体中文）。精确偏移安全打补丁 → ad-hoc 代码重签 → 内置技能说明汉化 → 完整冒烟验收。支持官方更新后低 token 自动增量重定位升级与一键回滚。适用场景：「汉化 agy」「汉化 antigravity」「更新 agy 汉化」「agy 汉化失效」「检查 agy 汉化状态」「还原 agy 官方英文」。只汉化 UI 展示文本，不碰命令名、模型名与执行逻辑。
 ---
 
-# Antigravity CLI 汉化（q汉化agy）
+# Antigravity CLI 汉化（q-zh-agy）
 
 为 Google Antigravity CLI（`agy`，Mach-O arm64）提供终端 TUI 界面简体中文汉化。
 **核心原则：只做 UI 说明文本汉化，不碰功能逻辑、命令名与配置键值。**
