@@ -116,6 +116,12 @@
       "context": "/settings 详细度标签"
     },
     {
+      "offset": "0x02df9fbf",
+      "en": "Update CLI",
+      "zh": "更新 CLI",
+      "context": "CLI update 子命令说明"
+    },
+    {
       "offset": "0x02dfae7b",
       "en": "Search:",
       "zh": "搜索:",
@@ -320,10 +326,22 @@
       "context": "/logout 命令说明（位置三）"
     },
     {
+      "offset": "0x02e80ae1",
+      "en": "Alias for plugin",
+      "zh": "plugin 的别名",
+      "context": "CLI plugins 子命令说明"
+    },
+    {
       "offset": "0x02e82261",
       "en": "Enable Telemetry",
       "zh": "启用遥测",
       "context": "/settings 遥测标签"
+    },
+    {
+      "offset": "0x02e93243",
+      "en": "Alias for --print",
+      "zh": "--print 的别名",
+      "context": "CLI --prompt 参数说明"
     },
     {
       "offset": "0x02e94af7",
@@ -380,6 +398,18 @@
       "context": "/settings 显示反馈调查说明"
     },
     {
+      "offset": "0x02ed4785",
+      "en": "List available models",
+      "zh": "列出可用模型",
+      "context": "CLI models 子命令说明"
+    },
+    {
+      "offset": "0x02ed479a",
+      "en": "List available agents",
+      "zh": "列出可用代理",
+      "context": "CLI agent/agents 子命令说明"
+    },
+    {
       "offset": "0x02ed6a4d",
       "en": "List available skills",
       "zh": "列出可用技能",
@@ -422,6 +452,12 @@
       "context": "命令行帮助子命令标题"
     },
     {
+      "offset": "0x02ef4675",
+      "en": "Short alias for --print",
+      "zh": "--print 的短别名",
+      "context": "CLI -p 参数说明"
+    },
+    {
       "offset": "0x02ef67ca",
       "en": "Manage tool permissions",
       "zh": "管理工具权限",
@@ -446,6 +482,12 @@
       "context": "/usage 加载提示"
     },
     {
+      "offset": "0x02f0da6d",
+      "en": "Show help for subcommands",
+      "zh": "显示子命令帮助",
+      "context": "CLI help 子命令说明"
+    },
+    {
       "offset": "0x02f0f755",
       "en": "View and review artifacts",
       "zh": "查看并审查产物",
@@ -462,6 +504,18 @@
       "en": "  AI Credit Overages: %s",
       "zh": "  AI 点数超额: %s",
       "context": "/usage AI 点数超额标签"
+    },
+    {
+      "offset": "0x02f197b1",
+      "en": "Short alias for --continue",
+      "zh": "--continue 的短别名",
+      "context": "CLI -c 参数说明"
+    },
+    {
+      "offset": "0x02f197cb",
+      "en": "Override CLI log file path",
+      "zh": "覆盖 CLI 日志路径",
+      "context": "CLI --log-file 参数说明"
     },
     {
       "offset": "0x02f1baa1",
@@ -500,6 +554,12 @@
       "context": "/rename 命令说明"
     },
     {
+      "offset": "0x02f52c7c",
+      "en": "Show changelog and release notes",
+      "zh": "显示更新与发布说明",
+      "context": "CLI changelog 子命令说明"
+    },
+    {
       "offset": "0x02f5447c",
       "en": "Interview me to align on a plan.",
       "zh": "访谈对齐方案。",
@@ -512,10 +572,34 @@
       "context": "/add-dir 命令说明（位置一）"
     },
     {
+      "offset": "0x02f5a99f",
+      "en": "Model for the current CLI session",
+      "zh": "当前 CLI 会话的模型",
+      "context": "CLI --model 参数说明"
+    },
+    {
+      "offset": "0x02f5a9c0",
+      "en": "Agent for the current CLI session",
+      "zh": "当前 CLI 会话的代理",
+      "context": "CLI --agent 参数说明"
+    },
+    {
       "offset": "0x02f6b5d8",
       "en": "Toggle custom terminal window title",
       "zh": "切换自定义终端标题",
       "context": "/title 命令说明"
+    },
+    {
+      "offset": "0x02f6fde5",
+      "en": "Resume a previous conversation by ID",
+      "zh": "按 ID 恢复之前的会话",
+      "context": "CLI --conversation 参数说明"
+    },
+    {
+      "offset": "0x02f6fe09",
+      "en": "Short alias for --prompt-interactive",
+      "zh": "--prompt-interactive 的短别名",
+      "context": "CLI -i 参数说明"
     },
     {
       "offset": "0x02f721e5",
@@ -528,6 +612,18 @@
       "en": "Speed of the running light animation",
       "zh": "运行指示灯动画速度",
       "context": "/settings 动画速度说明"
+    },
+    {
+      "offset": "0x02f76955",
+      "en": "Continue the most recent conversation",
+      "zh": "继续最近一次会话",
+      "context": "CLI --continue 参数说明"
+    },
+    {
+      "offset": "0x02f7697a",
+      "en": "Create a new project for this session",
+      "zh": "为当前会话创建新项目",
+      "context": "CLI --new-project 参数说明"
     },
     {
       "offset": "0x02f780bf",
@@ -626,6 +722,12 @@
       "context": "/add-dir 命令说明（位置二）"
     },
     {
+      "offset": "0x02fa76a3",
+      "en": "Configure environment paths and shell settings",
+      "zh": "配置环境路径与 shell 设置",
+      "context": "CLI install 子命令说明"
+    },
+    {
       "offset": "0x02fad6c0",
       "en": "Show helpful tips while the agent is generating",
       "zh": "代理生成时显示实用提示",
@@ -638,10 +740,22 @@
       "context": "/feedback 命令说明"
     },
     {
+      "offset": "0x02fb837d",
+      "en": "Set the agent execution mode for this session (%s)",
+      "zh": "设置当前会话的代理执行模式 (%s)",
+      "context": "CLI --mode 参数说明"
+    },
+    {
       "offset": "0x02fb99f3",
       "en": "Configure how you edit the prompt (default or vim)",
       "zh": "提示词编辑方式（default 或 vim）",
       "context": "/settings 编辑器模式说明"
+    },
+    {
+      "offset": "0x02fbbfd7",
+      "en": "Run in a sandbox with terminal restrictions enabled",
+      "zh": "在启用终端限制的沙箱环境中运行",
+      "context": "CLI --sandbox 参数说明"
     },
     {
       "offset": "0x02fc0434",
@@ -662,6 +776,36 @@
       "context": "/usage Business 消费说明"
     },
     {
+      "offset": "0x02fc626e",
+      "en": "Output format for print mode (text, json, stream-json)",
+      "zh": "打印模式的输出格式 (text, json, stream-json)",
+      "context": "CLI --output-format 参数说明"
+    },
+    {
+      "offset": "0x02fc62a4",
+      "en": "Project ID or project name for the current CLI session",
+      "zh": "当前 CLI 会话的项目 ID 或项目名称",
+      "context": "CLI --project 参数说明"
+    },
+    {
+      "offset": "0x02fc9c3c",
+      "en": "Disable slash command and skill expansion in print mode",
+      "zh": "在打印模式中禁用斜杠命令与技能展开",
+      "context": "CLI --disable-slash-commands 参数说明"
+    },
+    {
+      "offset": "0x02fc9c73",
+      "en": "Manage MCP servers (add, remove, list, enable, disable)",
+      "zh": "管理 MCP 服务 (add, remove, list, enable, disable)",
+      "context": "CLI mcp 子命令说明"
+    },
+    {
+      "offset": "0x02fcd1f5",
+      "en": "Serve this machine's microphone to a CLI on another host",
+      "zh": "将本机的麦克风提供给另一台主机上的 CLI",
+      "context": "CLI mic-serve 子命令说明"
+    },
+    {
       "offset": "0x02fd1c72",
       "en": "Ask a side question without interrupting the current task",
       "zh": "提出旁支问题，不中断当前任务",
@@ -680,10 +824,46 @@
       "context": "/settings 工作区外访问说明"
     },
     {
+      "offset": "0x02fd3c49",
+      "en": "Create a remote connection for the CLI session on start up",
+      "zh": "启动时为 CLI 会话创建远程连接",
+      "context": "CLI --remote-control 参数说明"
+    },
+    {
+      "offset": "0x02fd3c83",
+      "en": "Manage plugins (install, uninstall, list, enable, disable)",
+      "zh": "管理插件 (install, uninstall, list, enable, disable)",
+      "context": "CLI plugin 子命令说明"
+    },
+    {
+      "offset": "0x02fd6e21",
+      "en": "Auto-approve all tool permission requests without prompting",
+      "zh": "自动批准所有工具权限请求，无需提示",
+      "context": "CLI --dangerously-skip-permissions 参数说明"
+    },
+    {
+      "offset": "0x02fd9e11",
+      "en": "Run a single prompt non-interactively and print the response",
+      "zh": "以非交互方式运行单条提示词并打印响应",
+      "context": "CLI --print 参数说明"
+    },
+    {
+      "offset": "0x02fd9e4d",
+      "en": "Run an initial prompt interactively and continue the session",
+      "zh": "交互式运行初始提示词并继续该会话",
+      "context": "CLI --prompt-interactive 参数说明"
+    },
+    {
       "offset": "0x02fdaba9",
       "en": "Invoke the Boost multi-agent orchestrator for complex tasks.",
       "zh": "调用 Boost 多代理编排器处理复杂任务。",
       "context": "/boost 技能说明"
+    },
+    {
+      "offset": "0x02fdfb68",
+      "en": "Reasoning effort for the current CLI session (low|medium|high)",
+      "zh": "当前 CLI 会话的推理强度 (low|medium|high)",
+      "context": "CLI --effort 参数说明"
     },
     {
       "offset": "0x02fe0708",
@@ -698,6 +878,12 @@
       "context": "/settings 显示活跃任务说明"
     },
     {
+      "offset": "0x02fe8182",
+      "en": "Manage the remote-control background daemon (start, status, stop)",
+      "zh": "管理 remote-control 后台守护进程 (start, status, stop)",
+      "context": "CLI remote-control 子命令说明"
+    },
+    {
       "offset": "0x02feba52",
       "en": "Run an instruction on a recurring schedule or as a one-time timer.",
       "zh": "按计划重复运行指令，或设置一次性定时任务。",
@@ -708,6 +894,12 @@
       "en": "Use your AI credits for model calls once your plan's quota runs out",
       "zh": "套餐额度用完后，使用 AI 点数调用模型",
       "context": "/settings AI 点数说明"
+    },
+    {
+      "offset": "0x02fefb10",
+      "en": "Optional time limit for print mode; 0 waits until the turn completes",
+      "zh": "打印模式的可选超时时间；0 表示等待直到轮次完成",
+      "context": "CLI --print-timeout 参数说明"
     },
     {
       "offset": "0x02ff3183",
@@ -764,10 +956,22 @@
       "context": "/settings 选择复制说明"
     },
     {
+      "offset": "0x03022a95",
+      "en": "Optional JSON schema string or path to a schema file to enforce structured output (for stream-json, only applicable to the final result)",
+      "zh": "可选的 JSON schema 字符串或模式文件路径，用于强制结构化输出（对 stream-json 仅适用于最终结果）",
+      "context": "CLI --json-schema 参数说明"
+    },
+    {
       "offset": "0x03023e79",
       "en": "'default': standard behavior. 'accept-edits': auto-approve file edits, prompt for commands. 'plan': research and plan without making changes",
       "zh": "'default': 标准行为；'accept-edits': 自动批准文件编辑，命令仍需确认；'plan': 只调研规划，不作改动",
       "context": "/settings 代理模式说明"
+    },
+    {
+      "offset": "0x030293e2",
+      "en": "Input format for print mode (text, stream-json). stream-json reads one NDJSON message per line from stdin and runs a turn for each; it requires --output-format stream-json",
+      "zh": "打印模式的输入格式 (text, stream-json)。stream-json 从 stdin 按行读取 NDJSON 消息并执行交互；需配合 --output-format stream-json",
+      "context": "CLI --input-format 参数说明"
     },
     {
       "offset": "0x0303311a",

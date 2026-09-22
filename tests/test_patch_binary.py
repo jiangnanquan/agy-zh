@@ -206,6 +206,50 @@ class ManifestContractTests(unittest.TestCase):
         }
         self.assertTrue(server_text.isdisjoint(usage_items))
 
+    def test_cli_help_surface_is_covered(self) -> None:
+        manifest = json.loads((ROOT / "i18n" / "binary-translations.json").read_text())
+        cli_contexts = {
+            item["context"] for item in manifest["patches"]
+            if item["context"].startswith("CLI ")
+        }
+        expected_cli_contexts = {
+            "CLI --agent 参数说明",
+            "CLI -c 参数说明",
+            "CLI --continue 参数说明",
+            "CLI --conversation 参数说明",
+            "CLI --dangerously-skip-permissions 参数说明",
+            "CLI --disable-slash-commands 参数说明",
+            "CLI --effort 参数说明",
+            "CLI -i 参数说明",
+            "CLI --input-format 参数说明",
+            "CLI --json-schema 参数说明",
+            "CLI --log-file 参数说明",
+            "CLI --mode 参数说明",
+            "CLI --model 参数说明",
+            "CLI --new-project 参数说明",
+            "CLI --output-format 参数说明",
+            "CLI -p 参数说明",
+            "CLI --print 参数说明",
+            "CLI --print-timeout 参数说明",
+            "CLI --project 参数说明",
+            "CLI --prompt 参数说明",
+            "CLI --prompt-interactive 参数说明",
+            "CLI --remote-control 参数说明",
+            "CLI --sandbox 参数说明",
+            "CLI agent/agents 子命令说明",
+            "CLI changelog 子命令说明",
+            "CLI help 子命令说明",
+            "CLI install 子命令说明",
+            "CLI mcp 子命令说明",
+            "CLI mic-serve 子命令说明",
+            "CLI models 子命令说明",
+            "CLI plugin 子命令说明",
+            "CLI plugins 子命令说明",
+            "CLI remote-control 子命令说明",
+            "CLI update 子命令说明",
+        }
+        self.assertTrue(expected_cli_contexts.issubset(cli_contexts))
+
 
 if __name__ == "__main__":
     unittest.main()
