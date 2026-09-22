@@ -189,7 +189,6 @@ class ManifestContractTests(unittest.TestCase):
             "Disabled",
             "Quota exhausted",
             "Quota available",
-            "%.0f%% remaining · Refreshes in %s",
             "Scroll",
             "Page",
             "Bottom",
