@@ -33,6 +33,12 @@
       "en": "description: Guidelines for interacting with GitHub and request permissions from the user when commands fail due to restrictions in the agent environment.",
       "zh": "description: 与 GitHub 交互的操作指南；当命令因代理环境的权限限制而失败时，向用户请求授权。",
       "context": "/permissioned-github 右侧说明"
+    },
+    {
+      "path": "skills/automation/SKILL.md",
+      "en": "description: Interactive guide to design and create a scheduled background automation. Use this skill when the user wants to create an automated or recurring scheduled task (e.g. \"summarize my emails every morning\", \"every Monday send me a to-do list\"). Also triggered by the /automation slash command.",
+      "zh": "description: 设计和创建定时后台自动化任务的交互式指南。当用户想要创建自动化或定期执行的计划任务时使用此技能（例如「每天早上汇总我的邮件」「每周一发给我一份待办清单」）。也可通过 /automation 斜杠命令触发。",
+      "context": "/automation 右侧说明"
     }
   ]
 }
