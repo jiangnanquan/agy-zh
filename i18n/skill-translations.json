@@ -39,6 +39,24 @@
       "en": "description: Interactive guide to design and create a scheduled background automation. Use this skill when the user wants to create an automated or recurring scheduled task (e.g. \"summarize my emails every morning\", \"every Monday send me a to-do list\"). Also triggered by the /automation slash command.",
       "zh": "description: 设计和创建定时后台自动化任务的交互式指南。当用户想要创建自动化或定期执行的计划任务时使用此技能（例如「每天早上汇总我的邮件」「每周一发给我一份待办清单」）。也可通过 /automation 斜杠命令触发。",
       "context": "/automation 右侧说明"
+    },
+    {
+      "path": "skills/plugin/SKILL.md",
+      "en": "description: How to manage and create plugins — namespaced bundles of skills, agents, rules, MCP servers and hooks that install, enable and disable as a single unit. Use this skill when the user wants to enable, disable, install or uninstall a plugin, when they want to create a new plugin, or when a new customization should be packaged into a plugin rather than left loose. Also triggered by the /plugin slash command. Don't use for the underlying customization system itself — discovery roots, loading priority, or authoring a standalone skill, agent, rule, hook or MCP server outside a plugin; see the customizations guide skill for those.",
+      "zh": "description: 管理与创建插件（将技能、代理、规则、MCP 服务器和钩子打包为带命名空间的单一单元进行安装、启用与禁用）。当用户想要启用、禁用、安装或卸载插件，想要创建新插件，或将新的自定义功能打包为插件时使用此技能。也可通过 /plugin 斜杠命令触发。勿用于底层自定义系统本身（发现根目录、加载优先级，或在插件外部编写独立技能、代理、规则、钩子或 MCP 服务器；此类需求请参阅自定义指南技能）。",
+      "context": "/plugin 右侧说明"
+    },
+    {
+      "path": "skills/ui-extension/SKILL.md",
+      "en": "description: >-\n  Build, package, run, and debug UI extensions for Antigravity: interactive web\n  panels that render in the side pane, served by a Node.js sidecar using the\n  built-in Sidecar SDK.",
+      "zh": "description: >-\n  构建、打包、运行并调试 Antigravity 的 UI 扩展：在侧边栏中渲染交互式 Web 面板，\n  由 Node.js sidecar 借助内置 Sidecar SDK 提供服务。",
+      "context": "/ui-extension 右侧说明"
+    },
+    {
+      "path": "skills/ui-plugin-navigation/SKILL.md",
+      "en": "description: Discover UI plugin panels relevant to the current task and surface a one-click pill in chat to open (toggle) them in the side pane. Use when a running UI plugin's panel would help with what the user is doing, or right after the user enables a new UI plugin pane and a shortcut to open it is handy.",
+      "zh": "description: 发现与当前任务相关的 UI 插件面板，并在对话中呈现一键胶囊按钮以便在侧边栏打开（切换）该面板。当运行中的 UI 插件面板有助于用户当前工作，或用户刚启用新 UI 插件面板需要便捷快捷方式时使用。",
+      "context": "/ui-plugin-navigation 右侧说明"
     }
   ]
 }

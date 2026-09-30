@@ -1,6 +1,6 @@
 ---
 name: q-zh-agy
-description: Google Antigravity CLI (agy) 界面汉化（简体中文）。精确偏移安全打补丁 → ad-hoc 代码重签 → 内置技能说明汉化 → 完整冒烟验收。支持官方更新后低 token 自动增量重定位升级与一键回滚。适用场景：「汉化 agy」「汉化 antigravity」「更新 agy 汉化」「agy 汉化失效」「检查 agy 汉化状态」「还原 agy 官方英文」。只汉化 UI 展示文本，不碰命令名、模型名与执行逻辑。
+description: Google Antigravity CLI (agy) 界面汉化（简体中文）——偏移打补丁、代码重签、技能说明汉化、冒烟验收，支持官方更新后增量重定位与一键回滚。适用场景：「汉化 agy」「汉化 antigravity」「更新 agy 汉化」「agy 汉化失效」「检查 agy 汉化状态」「还原 agy 官方英文」。只汉化 UI 展示文本，不碰命令名、模型名与执行逻辑。
 ---
 
 # Antigravity CLI 汉化（q-zh-agy）
