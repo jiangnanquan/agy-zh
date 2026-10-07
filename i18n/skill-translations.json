@@ -47,12 +47,6 @@
       "context": "/plugin 右侧说明"
     },
     {
-      "path": "skills/ui-extension/SKILL.md",
-      "en": "description: >-\n  Build, package, run, and debug UI extensions for Antigravity: interactive web\n  panels that render in the side pane, served by a Node.js sidecar using the\n  built-in Sidecar SDK.",
-      "zh": "description: >-\n  构建、打包、运行并调试 Antigravity 的 UI 扩展：在侧边栏中渲染交互式 Web 面板，\n  由 Node.js sidecar 借助内置 Sidecar SDK 提供服务。",
-      "context": "/ui-extension 右侧说明"
-    },
-    {
       "path": "skills/ui-plugin-navigation/SKILL.md",
       "en": "description: Discover UI plugin panels relevant to the current task and surface a one-click pill in chat to open (toggle) them in the side pane. Use when a running UI plugin's panel would help with what the user is doing, or right after the user enables a new UI plugin pane and a shortcut to open it is handy.",
       "zh": "description: 发现与当前任务相关的 UI 插件面板，并在对话中呈现一键胶囊按钮以便在侧边栏打开（切换）该面板。当运行中的 UI 插件面板有助于用户当前工作，或用户刚启用新 UI 插件面板需要便捷快捷方式时使用。",
