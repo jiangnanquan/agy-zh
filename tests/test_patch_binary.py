@@ -93,6 +93,37 @@ class SourceSelectionTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "显式运行 --restore"):
                 patch_binary.select_existing_source(self.manifest)
 
+    def test_prune_old_backups_keeps_latest_two(self) -> None:
+        # Create 4 versions: 1.1.15, 1.1.16, 1.2.0, 1.3.1
+        b1 = self.root / "agy.zh-backup-1.1.15"
+        b2 = self.root / "agy.zh-backup-1.1.16"
+        b3 = self.root / "agy.zh-backup-1.2.0"
+        b4 = self.root / "agy.zh-backup-1.3.1"
+        legacy = self.root / "agy.zh-backup"
+        broken = self.root / "agy.zh-broken-2026"
+        other = self.root / "other-file"
+
+        for p in (b1, b2, b3, b4, legacy, broken, other):
+            p.write_bytes(b"data")
+
+        with self.patch_paths():
+            purged = patch_binary.prune_old_backups(keep=2)
+
+        self.assertIn(b1, purged)
+        self.assertIn(b2, purged)
+        self.assertIn(legacy, purged)
+        self.assertIn(broken, purged)
+        self.assertFalse(b1.exists())
+        self.assertFalse(b2.exists())
+        self.assertFalse(legacy.exists())
+        self.assertFalse(broken.exists())
+
+        # The newest two must be retained
+        self.assertTrue(b3.exists())
+        self.assertTrue(b4.exists())
+        # Unrelated file must be untouched
+        self.assertTrue(other.exists())
+
 
 class ManifestContractTests(unittest.TestCase):
     def test_offsets_are_unique_and_translations_fit(self) -> None:

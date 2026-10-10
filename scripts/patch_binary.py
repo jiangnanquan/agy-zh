@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -49,6 +50,61 @@ def load_manifest() -> dict:
 def backup_path(manifest: dict) -> Path:
     version = manifest["_meta"]["agy_version"]
     return TARGET.with_name(f"{TARGET.name}.zh-backup-{version}")
+
+
+def parse_version(path: Path) -> tuple[int, ...] | None:
+    match = re.search(r"\.zh-backup-(\d+(?:\.\d+)*)", path.name)
+    if not match:
+        return None
+    parts = []
+    for chunk in match.group(1).split("."):
+        try:
+            parts.append(int(chunk))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
+
+
+def prune_old_backups(keep: int = 2) -> list[Path]:
+    """Retain only the latest `keep` versioned backups and purge obsolete ones."""
+    if not TARGET.parent.exists():
+        return []
+    versioned: list[tuple[tuple[int, ...], Path]] = []
+    purged: list[Path] = []
+    prefix = f"{TARGET.name}.zh-backup-"
+
+    for candidate in TARGET.parent.iterdir():
+        if candidate.name.startswith(prefix) and candidate.is_file():
+            ver = parse_version(candidate)
+            if ver is not None:
+                versioned.append((ver, candidate))
+
+    versioned.sort(key=lambda item: item[0])
+    if len(versioned) > keep:
+        to_delete = versioned[:-keep]
+        for _, old_backup in to_delete:
+            try:
+                old_backup.unlink(missing_ok=True)
+                purged.append(old_backup)
+            except OSError:
+                pass
+
+    # Clean legacy non-versioned or broken backup artifacts
+    legacy_patterns = [
+        f"{TARGET.name}.zh-backup",
+        f"{TARGET.name}.zh-1114-backup",
+        f"{TARGET.name}.zh-broken-*",
+    ]
+    for pattern in legacy_patterns:
+        for extra in TARGET.parent.glob(pattern):
+            if extra.is_file():
+                try:
+                    extra.unlink(missing_ok=True)
+                    purged.append(extra)
+                except OSError:
+                    pass
+
+    return purged
 
 
 def signature_details(path: Path) -> str:
@@ -224,6 +280,10 @@ def apply_patch(dry_run: bool) -> None:
             finally:
                 staged_backup.unlink(missing_ok=True)
         validate_source(current_backup, manifest)
+        pruned = prune_old_backups(keep=2)
+        if pruned:
+            purged_names = ", ".join(p.name for p in pruned)
+            print(f"CLEANUP PASS：已清理 {len(pruned)} 个旧备份以节省空间（仅保留最新 2 份）：{purged_names}")
 
         file_descriptor, staged_name = tempfile.mkstemp(prefix="agy.zh-staged-", dir=TARGET.parent)
         os.close(file_descriptor)
