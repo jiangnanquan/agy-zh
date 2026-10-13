@@ -97,6 +97,9 @@ agy --version
    - 编辑 `i18n/binary-translations.json` 或 `i18n/skill-translations.json` 补充或校准文案。
 3. **重新执行升级**：
    再次运行 `bash scripts/auto_update.sh`，通过测试后自动重新安装。
+4. **交付闭环与 Git 提交/推送**：
+   - 冒烟与人工检查全绿后，执行本地原子提交（`git commit -m "feat(compat): 适配 agy <新版本>"`）；
+   - 主动向用户汇报验收证据与 commit 哈希，询问是否执行 `git push`；若用户指令中已授权则直接 push 闭环。
 
 ---
 
