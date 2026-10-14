@@ -51,6 +51,12 @@
       "en": "description: Discover UI plugin panels relevant to the current task and surface a one-click pill in chat to open (toggle) them in the side pane. Use when a running UI plugin's panel would help with what the user is doing, or right after the user enables a new UI plugin pane and a shortcut to open it is handy.",
       "zh": "description: 发现与当前任务相关的 UI 插件面板，并在对话中呈现一键胶囊按钮以便在侧边栏打开（切换）该面板。当运行中的 UI 插件面板有助于用户当前工作，或用户刚启用新 UI 插件面板需要便捷快捷方式时使用。",
       "context": "/ui-plugin-navigation 右侧说明"
+    },
+    {
+      "path": "skills/run-workflow/SKILL.md",
+      "en": "description: >-\n  How to write and run a dynamic workflow script with the `run_workflow` tool:\n  a Python script that orchestrates many agents with `agent`, `parallel`,\n  `pipeline`, and `phase`. Use when a task splits into many\n  independent or staged pieces of agent work (fan out over files, modules,\n  bugs, or review angles, then aggregate), or when the user asks for a\n  workflow. Don't use for a single delegated task (use a subagent) or for\n  legacy workflow files (see migrate-workflows).",
+      "zh": "description: >-\n  如何使用 `run_workflow` 工具编写并运行动态工作流脚本：\n  即使用 `agent`、`parallel`、`pipeline` 和 `phase` 编排多个代理的 Python 脚本。当任务拆分为多个\n  独立或分阶段的代理工作（在文件、模块、缺陷或审查维度上扇出，然后汇总），或用户要求执行工作流时使用。\n  勿用于单个委派任务（请使用 subagent）或旧版工作流文件（参见 migrate-workflows）。",
+      "context": "/run-workflow 右侧说明"
     }
   ]
 }
