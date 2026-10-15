@@ -794,6 +794,12 @@
       "context": "CLI mic-serve 子命令说明"
     },
     {
+      "offset": "0x03295e27",
+      "en": "Turn on remote control for this session (off to disable)",
+      "zh": "开启当前会话的远程控制 (off 可关闭)",
+      "context": "/remote-control 命令说明"
+    },
+    {
       "offset": "0x03299b22",
       "en": "Ask a side question without interrupting the current task",
       "zh": "提出旁支问题，不中断当前任务",
@@ -864,6 +870,12 @@
       "en": "Manage the remote-control background daemon (start, status, stop)",
       "zh": "管理 remote-control 后台守护进程 (start, status, stop)",
       "context": "CLI remote-control 子命令说明"
+    },
+    {
+      "offset": "0x032b3307",
+      "en": "Manage, discover, install, uninstall, enable, and disable plugins",
+      "zh": "管理、发现、安装、卸载、启用与禁用插件",
+      "context": "/plugin 命令说明"
     },
     {
       "offset": "0x032b5c20",
