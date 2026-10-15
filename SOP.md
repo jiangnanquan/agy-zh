@@ -50,6 +50,9 @@ go run scripts/go_func_ranges.go ~/.local/bin/agy HintNavigate HintScrollPage
 bash scripts/patch_binary.sh
 bash scripts/patch_skill_descriptions.sh
 bash scripts/smoke_test.sh
+
+# 5. 扫描官方二进制与技能中的未汉化遗漏项（确保无新命令遗漏）
+python3 scripts/scan_untranslated.py --strict
 ```
 
 最后启动真实 `agy`，依次检查 `/` 菜单首屏与末屏、`/settings`、`/usage` 和底部快捷键。

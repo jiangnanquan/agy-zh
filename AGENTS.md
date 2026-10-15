@@ -35,7 +35,7 @@
 2. 阅读 `AI_TRANSLATION_GUIDE.md`，确认术语、占位符和字节预算。
 3. 先运行 `bash scripts/patch_binary.sh --dry-run`；失败时停止，不得绕过版本或哈希校验。
 4. 修改机器可读清单和对应脚本，避免只改已安装文件。
-5. 运行 `python3 -m unittest discover -s tests -v` 和 `bash scripts/install.sh` 完成应用与自动验收。
+5. 运行 `python3 -m unittest discover -s tests -v`、`python3 scripts/scan_untranslated.py --strict` 和 `bash scripts/install.sh` 完成应用与自动验收。
 6. 启动真实 `agy`，输入 `/`，至少检查菜单首屏、末屏和底部快捷键提示。
 7. 运行 `git diff --check`，说明验证范围及尚未验证的环境。
 
