@@ -201,6 +201,7 @@ class ManifestContractTests(unittest.TestCase):
         self.assertIn("/plugin 命令说明", contexts)
         self.assertIn("/migrate-workflows 技能说明", contexts)
         self.assertIn("/generative_ui 技能说明", contexts)
+        self.assertIn("/projects 命令说明", contexts)
 
         skill_manifest = json.loads((ROOT / "i18n" / "skill-translations.json").read_text())
         skill_paths = {item["path"] for item in skill_manifest["patches"]}
