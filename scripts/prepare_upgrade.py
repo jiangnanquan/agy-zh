@@ -40,7 +40,7 @@ RELEASE_MANIFEST_URL = (
 )
 SKILL_ROOT = Path.home() / ".gemini" / "antigravity-cli" / "builtin"
 SIGNING_AUTHORITY = "Authority=Developer ID Application: Google LLC (EQHXZ8M8AV)"
-CONTEXT_WIDTHS = (128, 96, 64, 48, 32)
+CONTEXT_WIDTHS = (128, 96, 64, 48, 32, 24, 16)
 
 
 def run(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
