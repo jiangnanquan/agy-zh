@@ -111,9 +111,11 @@ def extract_command_descriptions(binary_path: Path) -> list[dict[str, Any]]:
                             imm12 = (next_inst >> 10) & 0xFFF
                             target_off = (page + imm12) - 0x100000000
 
-            # MOV X1, #len (0xd2800001 format)
+            # MOV X1, #len (0xd2800001 format) or ORR X1, XZR, #0x30 (0xb27c07e1)
             if (inst & 0xFFE0001F) == 0xD2800001:
                 target_len = (inst >> 5) & 0xFFFF
+            elif inst == 0xB27C07E1:
+                target_len = 48
 
         if target_off is not None and 0 <= target_off < len(bin_data):
             if target_len and target_len > 0:
