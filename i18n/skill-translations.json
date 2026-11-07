@@ -57,6 +57,24 @@
       "en": "description: >-\n  How to write and run a dynamic workflow script with the `run_workflow` tool:\n  a Python script that orchestrates many agents with `agent`, `parallel`,\n  `pipeline`, and `phase`. Use when a task splits into many\n  independent or staged pieces of agent work (fan out over files, modules,\n  bugs, or review angles, then aggregate), or when the user asks for a\n  workflow. Don't use for a single delegated task (use a subagent) or for\n  legacy workflow files (see migrate-workflows).",
       "zh": "description: >-\n  如何使用 `run_workflow` 工具编写并运行动态工作流脚本：\n  即使用 `agent`、`parallel`、`pipeline` 和 `phase` 编排多个代理的 Python 脚本。当任务拆分为多个\n  独立或分阶段的代理工作（在文件、模块、缺陷或审查维度上扇出，然后汇总），或用户要求执行工作流时使用。\n  勿用于单个委派任务（请使用 subagent）或旧版工作流文件（参见 migrate-workflows）。",
       "context": "/run-workflow 右侧说明"
+    },
+    {
+      "path": "skills/native_swarm/SKILL.md",
+      "en": "description: >-\n  Run a swarm: several agents working in parallel on one task, each in its own\n  conversation, collaborating through a shared message board. Use when the work\n  splits into pieces that can be done at the same time, or when a second pair\n  of eyes should check the first pair's work.",
+      "zh": "description: >-\n  运行蜂群（swarm）：多个代理在各自会话中并行执行同一任务，\n  并通过共享留言板协同作业。适用于任务可拆分为并行环节，\n  或需要第二双眼睛复核校验的场景。",
+      "context": "/native_swarm 右侧说明"
+    },
+    {
+      "path": "skills/swarm_monitor/SKILL.md",
+      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the monitor. On a\n  timer, it checks whether the whole swarm has stalled and calls on the one\n  member who can unstick it. Coordinators and other workers: do not load this.",
+      "zh": "description: >-\n  仅适用于在任务简报中指定为监控员（monitor）的 native-swarm 工作代理。定时检查\n  整个蜂群是否停滞，并唤醒能解除阻塞的成员。协调员及其他工作代理：请勿加载此技能。",
+      "context": "/swarm_monitor 右侧说明"
+    },
+    {
+      "path": "skills/swarm_narrator/SKILL.md",
+      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the narrator. It\n  watches the board and keeps the user's Overview (view.json + view.html)\n  current. Coordinators and other workers: do not load this.",
+      "zh": "description: >-\n  仅适用于在任务简报中指定为解说员（narrator）的 native-swarm 工作代理。监控\n  留言板并实时更新用户的全局总览视图（view.json + view.html）。协调员及其他工作代理：请勿加载此技能。",
+      "context": "/swarm_narrator 右侧说明"
     }
   ]
 }
