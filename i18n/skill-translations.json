@@ -59,9 +59,15 @@
       "context": "/run-workflow 右侧说明"
     },
     {
+      "path": "skills/migrate-agent-settings/SKILL.md",
+      "en": "description: Migrates the user's MCP servers, skills, slash commands, subagents, and instruction files from other coding agents (Claude Code, Codex, Cursor, Gemini CLI) into one new Antigravity plugin. Use when the user wants to bring over, import, or migrate their setup or config from another agent or tool. Don't use for installing Marketplace plugins or authoring a new plugin from scratch (use the plugin skill).",
+      "zh": "description: 将用户的 MCP 服务器、技能、斜杠命令、子代理及指令文件从其他编程代理（Claude Code、Codex、Cursor、Gemini CLI）迁移至一个全新的 Antigravity 插件中。当用户希望从其他代理或工具引入、导入或迁移配置或环境时使用。勿用于安装插件市场中的插件或从零编写新插件（请使用 plugin 技能）。",
+      "context": "/migrate-agent-settings 右侧说明"
+    },
+    {
       "path": "skills/native_swarm/SKILL.md",
-      "en": "description: >-\n  Run a swarm: several agents working in parallel on one task, each in its own\n  conversation, collaborating through a shared message board. Use when the work\n  splits into pieces that can be done at the same time, or when a second pair\n  of eyes should check the first pair's work.",
-      "zh": "description: >-\n  运行蜂群（swarm）：多个代理在各自会话中并行执行同一任务，\n  并通过共享留言板协同作业。适用于任务可拆分为并行环节，\n  或需要第二双眼睛复核校验的场景。",
+      "en": "description: >-\n  (Preview & Quota Heavy) Run a swarm: several agents working in parallel on\n  one task, each in its own conversation, collaborating through a shared\n  message board. Use when the work splits into pieces that can be done at the\n  same time, or when a second pair of eyes should check the first pair's work.",
+      "zh": "description: >-\n  （预览版且消耗大量配额）运行蜂群（swarm）：多个代理在各自会话中并行执行同一任务，\n  并通过共享留言板协同作业。适用于任务可拆分为并行环节，\n  或需要第二双眼睛复核校验的场景。",
       "context": "/native_swarm 右侧说明"
     },
     {
@@ -72,8 +78,8 @@
     },
     {
       "path": "skills/swarm_narrator/SKILL.md",
-      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the narrator. It\n  watches the board and keeps the user's Overview (view.json + view.html)\n  current. Coordinators and other workers: do not load this.",
-      "zh": "description: >-\n  仅适用于在任务简报中指定为解说员（narrator）的 native-swarm 工作代理。监控\n  留言板并实时更新用户的全局总览视图（view.json + view.html）。协调员及其他工作代理：请勿加载此技能。",
+      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the narrator. It\n  watches the board and keeps the facts behind the user's Overview\n  (view.json) current. Coordinators and other workers: do not load this.",
+      "zh": "description: >-\n  仅适用于在任务简报中指定为解说员（narrator）的 native-swarm 工作代理。监控\n  留言板并实时更新用户全局总览视图背后的事实数据（view.json）。协调员及其他工作代理：请勿加载此技能。",
       "context": "/swarm_narrator 右侧说明"
     }
   ]
