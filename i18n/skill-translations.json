@@ -7,7 +7,7 @@
     {
       "path": "skills/agy-customizations/SKILL.md",
       "en": "description: >-\n  Comprehensive guide and reference for the Antigravity Customization System.\n  Use to explain how customizations work, their loading priority, discovery mechanisms,\n  and to guide the creation of skills, rules, plugins, hooks, and MCP servers.",
-      "zh": "description: >-\n  Antigravity 自定义系统的完整指南与参考。\n  介绍自定义机制、加载优先级与发现方式，\n  并指导创建技能、规则、插件、钩子及 MCP 服务器。",
+      "zh": "description: >-\n  Antigravity 自定义系统完整指南与参考。\n  介绍自定义机制、加载优先级和发现方式，\n  并指导创建技能、规则、插件、钩子及 MCP 服务器。",
       "context": "/agy-customizations 右侧说明"
     },
     {
@@ -81,6 +81,12 @@
       "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the narrator. It\n  watches the board and keeps the facts behind the user's Overview\n  (view.json) current. Coordinators and other workers: do not load this.",
       "zh": "description: >-\n  仅适用于在任务简报中指定为解说员（narrator）的 native-swarm 工作代理。监控\n  留言板并实时更新用户全局总览视图背后的事实数据（view.json）。协调员及其他工作代理：请勿加载此技能。",
       "context": "/swarm_narrator 右侧说明"
+    },
+    {
+      "path": "skills/mcp-app-development/SKILL.md",
+      "en": "description: >-\n  Build, package, and debug MCP Apps for Antigravity: MCP server tools whose\n  results render as interactive UI in the conversation, in the side pane, or\n  full-page from the sidebar. Use when adding a UI to an MCP tool, building or\n  theming the app itself, packaging it as a plugin, or debugging an app that\n  doesn't render or behave as expected.",
+      "zh": "description: >-\n  为 Antigravity 构建、打包和调试 MCP 应用：将 MCP 服务器工具的结果渲染为\n  对话内、侧边栏面板或侧栏全页的交互式 UI。适用于为 MCP 工具添加 UI、\n  构建或定制应用主题、将其打包为插件，或调试未按预期渲染或运行的应用。",
+      "context": "/mcp-app-development 右侧说明"
     }
   ]
 }

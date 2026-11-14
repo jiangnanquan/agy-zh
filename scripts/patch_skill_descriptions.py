@@ -33,13 +33,28 @@ def atomic_write(path: Path, content: str) -> None:
         staged.unlink(missing_ok=True)
 
 
+def is_already_applied(source: str, item: dict) -> bool:
+    if source.count(item["zh"]) == 1 and item["en"] not in source:
+        return True
+    norm_source = "\n".join(line.rstrip() for line in source.splitlines())
+    norm_zh = "\n".join(line.rstrip() for line in item["zh"].splitlines())
+    return norm_zh in norm_source and item["en"] not in source
+
+
 def apply() -> None:
     changed = 0
     for item in load_manifest()["patches"]:
         target = ROOT / item["path"]
         backup = target.with_name(target.name + BACKUP_SUFFIX)
         source = target.read_text(encoding="utf-8")
-        if source.count(item["zh"]) == 1 and item["en"] not in source:
+        if is_already_applied(source, item):
+            if source.count(item["zh"]) != 1:
+                norm_zh = "\n".join(line.rstrip() for line in item["zh"].splitlines())
+                norm_source = "\n".join(line.rstrip() for line in source.splitlines())
+                if norm_zh in norm_source:
+                    new_source = norm_source.replace(norm_zh, item["zh"], 1)
+                    atomic_write(target, new_source + "\n" if not new_source.endswith("\n") else new_source)
+                    changed += 1
             continue
         if source.count(item["en"]) != 1:
             raise RuntimeError(f"{item['context']}：英文原文不是唯一匹配")
@@ -58,7 +73,7 @@ def apply() -> None:
 def check() -> None:
     for item in load_manifest()["patches"]:
         source = (ROOT / item["path"]).read_text(encoding="utf-8")
-        if source.count(item["zh"]) != 1 or item["en"] in source:
+        if not is_already_applied(source, item):
             raise RuntimeError(f"{item['context']}：汉化未完整应用")
     print("状态：内置 Skill 说明已汉化")
 
