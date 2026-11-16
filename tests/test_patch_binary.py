@@ -202,12 +202,17 @@ class ManifestContractTests(unittest.TestCase):
         self.assertIn("/migrate-workflows 技能说明", contexts)
         self.assertIn("/generative_ui 技能说明", contexts)
         self.assertIn("/projects 命令说明", contexts)
+        self.assertIn("/compact 命令说明", contexts)
+        self.assertIn("/swarm (native_swarm) 技能说明", contexts)
+        self.assertIn("/swarm_pane 技能说明", contexts)
 
         skill_manifest = json.loads((ROOT / "i18n" / "skill-translations.json").read_text())
         skill_paths = {item["path"] for item in skill_manifest["patches"]}
         self.assertIn("skills/migrate-workflows/SKILL.md", skill_paths)
         self.assertIn("skills/generative_ui/SKILL.md", skill_paths)
         self.assertIn("skills/permissioned-github/SKILL.md", skill_paths)
+        self.assertIn("skills/native_swarm/SKILL.md", skill_paths)
+        self.assertIn("skills/swarm_pane/SKILL.md", skill_paths)
 
     def test_usage_client_surface_is_covered_without_server_payloads(self) -> None:
         manifest = json.loads((ROOT / "i18n" / "binary-translations.json").read_text())

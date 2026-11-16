@@ -926,10 +926,28 @@
       "context": "/usage AI 点数说明"
     },
     {
+      "offset": "0x03c52b5b",
+      "en": "Compact the conversation now (summarize history to free up the context window).",
+      "zh": "立即压缩当前对话（汇总历史记录以释放上下文窗口）。",
+      "context": "/compact 命令说明"
+    },
+    {
       "offset": "0x03c52baa",
       "en": "Reflect on recent successes or corrections to capture reusable skills or rules.",
       "zh": "复盘近期成功经验或纠正事项，沉淀可复用技能或规则。",
       "context": "/learn 技能说明"
+    },
+    {
+      "offset": "0x03c54076",
+      "en": "Experimental. Invoke the deep agent to plan, build, verify complex coding tasks.",
+      "zh": "实验功能：调用深度代理规划、构建并验证复杂编程任务。",
+      "context": "/deepagent 命令说明"
+    },
+    {
+      "offset": "0x03c55b7b",
+      "en": "[Teamfood] Invoke a browser with computer-use tools only with experimental model.",
+      "zh": "[内部测试] 仅配合实验模型调用带计算机操作工具的浏览器。",
+      "context": "/browser-vision 命令说明"
     },
     {
       "offset": "0x03c5afe7",
@@ -942,6 +960,12 @@
       "en": "When toggled on, %s collects usage data to help Google enhance performance and features",
       "zh": "启用后，%s 会收集使用数据，帮助 Google 改进性能和功能",
       "context": "/settings 遥测说明"
+    },
+    {
+      "offset": "0x03c67d13",
+      "en": "Experimental. Invoke the review agent to audit code changes, surface bugs, and verify correctness.",
+      "zh": "实验功能：调用审查代理审计代码变更、排查缺陷并验证正确性。",
+      "context": "/review-agent 命令说明"
     },
     {
       "offset": "0x03c6dd3f",
@@ -992,10 +1016,22 @@
       "context": "/settings 渲染模式说明"
     },
     {
+      "offset": "0x03d28ccb",
+      "en": "description: >-\n  What the coordinator writes so the Swarm UI's Overview can show the swarm's\n  goal, its groups of work and a screenshot timeline. Load it before you brief\n  and add the first workers to a swarm.",
+      "zh": "description: >-\n  协调员编写的概览配置，用于在 Swarm UI 总览页展示蜂群目标、\n  工作分组与截图时间线。在向首批工作代理下发简报并加入蜂群前加载。",
+      "context": "/swarm_pane 技能说明"
+    },
+    {
       "offset": "0x03d7a47f",
       "en": "Provides a comprehensive guide, quick reference, and sitemap for Google Antigravity (AGY), including the Antigravity CLI (agy), Antigravity 2.0, Antigravity IDE, Python SDK, slash commands, keybindings, and customizations (skills, rules, MCP, sidecars). Activate this skill when the user asks questions about how to use, configure, or customize Antigravity, AGY, the agy CLI, the Antigravity IDE, or Antigravity 2.0.",
       "zh": "提供 Google Antigravity（AGY）的完整指南、快速参考和导航，涵盖 Antigravity CLI（agy）、Antigravity 2.0、Antigravity IDE、Python SDK、斜杠命令、快捷键及自定义功能（技能、规则、MCP、sidecar）。当用户询问如何使用、配置或自定义 Antigravity、AGY、agy CLI、Antigravity IDE 或 Antigravity 2.0 时启用此技能。",
       "context": "/antigravity-guide 技能说明"
+    },
+    {
+      "offset": "0x03dba1b4",
+      "en": "description: Discover UI plugin panels relevant to the current task and surface a one-click pill in chat to open (toggle) them in the side pane. Use when a running UI plugin's panel would help with what the user is doing, or right after the user enables a new UI plugin pane and a shortcut to open it is handy.",
+      "zh": "description: 发现与当前任务相关的 UI 插件面板，并在对话中呈现一键胶囊按钮以便在侧边栏打开（切换）该面板。当运行中的 UI 插件面板有助于用户当前工作，或用户刚启用新 UI 插件面板需要便捷快捷方式时使用。",
+      "context": "/ui-plugin-navigation 技能说明"
     },
     {
       "offset": "0x03e3c991",
@@ -1016,6 +1052,12 @@
       "context": "/agy-customizations 技能说明第三行"
     },
     {
+      "offset": "0x03e4fcd1",
+      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the monitor. On a\n  timer, it checks whether the whole swarm has stalled and calls on the one\n  member who can unstick it. Coordinators and other workers: do not load this.",
+      "zh": "description: >-\n  仅适用于在任务简报中指定为监控员（monitor）的 native-swarm 工作代理。定时检查\n  整个蜂群是否停滞，并唤醒能解除阻塞的成员。协调员及其他工作代理：请勿加载此技能。",
+      "context": "/swarm_monitor 技能说明"
+    },
+    {
       "offset": "0x03e570c3",
       "en": "Automatically migrate legacy workflows to modern skills across global and workspace configurations. Scans for existing workflows, creates target SKILL.md files, and safely archives old workflow files.",
       "zh": "自动将旧工作流迁移为现代技能（支持全局与工作区配置）。扫描现有工作流，创建目标 SKILL.md 文件，并安全归档旧工作流。",
@@ -1026,6 +1068,54 @@
       "en": "How to render rich interactive HTML widgets inline in the chat or as standalone artifacts. Use this skill when you want to show the user diagrams, data visualizations, interactive controls, educational walkthroughs, or any rich visual content beyond plain text and markdown.",
       "zh": "在聊天中内联渲染丰富的交互式 HTML 组件，或作为独立产物展示。当你需要向用户呈现图表、数据可视化、交互控件、教学演示，或任何超越纯文本和 Markdown 的丰富视觉内容时使用此技能。",
       "context": "/generative_ui 技能说明"
+    },
+    {
+      "offset": "0x03ecea5a",
+      "en": "description: Guidelines for interacting with GitHub and request permissions from the user when commands fail due to restrictions in the agent environment.",
+      "zh": "description: 与 GitHub 交互的操作指南；当命令因代理环境的权限限制而失败时，向用户请求授权。",
+      "context": "/permissioned-github 技能说明"
+    },
+    {
+      "offset": "0x03f12b26",
+      "en": "description: >-\n  How to write and run a dynamic workflow script with the `run_workflow` tool:\n  a Python script that orchestrates many agents with `agent`, `parallel`,\n  `pipeline`, and `phase`. Use when a task splits into many\n  independent or staged pieces of agent work (fan out over files, modules,\n  bugs, or review angles, then aggregate), or when the user asks for a\n  workflow. Don't use for a single delegated task (use a subagent) or for\n  legacy workflow files (see migrate-workflows).",
+      "zh": "description: >-\n  如何使用 `run_workflow` 工具编写并运行动态工作流脚本：\n  即使用 `agent`、`parallel`、`pipeline` 和 `phase` 编排多个代理的 Python 脚本。当任务拆分为多个\n  独立或分阶段的代理工作（在文件、模块、缺陷或审查维度上扇出，然后汇总），或用户要求执行工作流时使用。\n  勿用于单个委派任务（请使用 subagent）或旧版工作流文件（参见 migrate-workflows）。",
+      "context": "/run-workflow 技能说明"
+    },
+    {
+      "offset": "0x03f1cd2e",
+      "en": "description: Migrates the user's MCP servers, skills, slash commands, subagents, and instruction files from other coding agents (Claude Code, Codex, Cursor, Gemini CLI) into one new Antigravity plugin. Use when the user wants to bring over, import, or migrate their setup or config from another agent or tool. Don't use for installing Marketplace plugins or authoring a new plugin from scratch (use the plugin skill).",
+      "zh": "description: 将用户的 MCP 服务器、技能、斜杠命令、子代理及指令文件从其他编程代理（Claude Code、Codex、Cursor、Gemini CLI）迁移至一个全新的 Antigravity 插件中。当用户希望从其他代理或工具引入、导入或迁移配置或环境时使用。勿用于安装插件市场中的插件或从零编写新插件（请使用 plugin 技能）。",
+      "context": "/migrate-agent-settings 技能说明"
+    },
+    {
+      "offset": "0x03f3246c",
+      "en": "description: >-\n  ONLY for the native-swarm worker whose brief says it is the narrator. It\n  watches the board and keeps the facts behind the user's Overview\n  (view.json) current. Coordinators and other workers: do not load this.",
+      "zh": "description: >-\n  仅限简报指定为解说员（narrator）的 native-swarm 工作代理。监控留言板\n  并实时更新用户总览视图数据（view.json）。协调员及其他工作代理：请勿加载。",
+      "context": "/swarm_narrator 技能说明"
+    },
+    {
+      "offset": "0x03f4f88a",
+      "en": "description: Interactive guide to design and create a scheduled background automation. Use this skill when the user wants to create an automated or recurring scheduled task (e.g. \"summarize my emails every morning\", \"every Monday send me a to-do list\"). Also triggered by the /automation slash command.",
+      "zh": "description: 设计和创建定时后台自动化任务的交互式指南。当用户想要创建自动化或定期执行的计划任务时使用此技能（例如「每天早上汇总我的邮件」「每周一发给我一份待办清单」）。也可通过 /automation 斜杠命令触发。",
+      "context": "/automation 技能说明"
+    },
+    {
+      "offset": "0x03f5f4c4",
+      "en": "description: >-\n  Build, package, and debug MCP Apps for Antigravity: MCP server tools whose\n  results render as interactive UI in the conversation, in the side pane, or\n  full-page from the sidebar. Use when adding a UI to an MCP tool, building or\n  theming the app itself, packaging it as a plugin, or debugging an app that\n  doesn't render or behave as expected.",
+      "zh": "description: >-\n  为 Antigravity 构建、打包和调试 MCP 应用：将 MCP 服务器工具的结果渲染为\n  对话内、侧边栏面板或侧栏全页的交互式 UI。适用于为 MCP 工具添加 UI、\n  构建或定制应用主题、将其打包为插件，或调试未按预期渲染或运行的应用。",
+      "context": "/mcp-app-development 技能说明"
+    },
+    {
+      "offset": "0x03fdeefc",
+      "en": "description: How to manage and create plugins — namespaced bundles of skills, agents, rules, MCP servers and hooks that install, enable and disable as a single unit. Use this skill when the user wants to enable, disable, install or uninstall a plugin, when they want to create a new plugin, or when a new customization should be packaged into a plugin rather than left loose. Also triggered by the /plugin slash command. Don't use for the underlying customization system itself — discovery roots, loading priority, or authoring a standalone skill, agent, rule, hook or MCP server outside a plugin; see the customizations guide skill for those.",
+      "zh": "description: 管理与创建插件（将技能、代理、规则、MCP 服务器和钩子打包为带命名空间的单一单元进行安装、启用与禁用）。当用户想要启用、禁用、安装或卸载插件，想要创建新插件，或将新的自定义功能打包为插件时使用此技能。也可通过 /plugin 斜杠命令触发。勿用于底层自定义系统本身（发现根目录、加载优先级，或在插件外部编写独立技能、代理、规则、钩子或 MCP 服务器；此类需求请参阅自定义指南技能）。",
+      "context": "/plugin 技能说明"
+    },
+    {
+      "offset": "0x040581de",
+      "en": "description: >-\n  (Preview & Quota Heavy) Run a swarm: several agents working in parallel on\n  one task, each in its own conversation, collaborating through a shared\n  message board. Use when the work splits into pieces that can be done at the\n  same time, or when a second pair of eyes should check the first pair's work.",
+      "zh": "description: >-\n  （预览版且消耗大量配额）运行蜂群（swarm）：多个代理在各自会话中并行执行同一任务，\n  并通过共享留言板协同作业。适用于任务可拆分为并行环节，\n  或需要第二双眼睛复核校验的场景。",
+      "context": "/swarm (native_swarm) 技能说明"
     }
   ]
 }
